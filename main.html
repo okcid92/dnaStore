@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNAStore - Premium Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            base: 'var(--color-brand-base)',    // Background
+                            blue: '#1F3A5F',                    // Accent (Constant)
+                            light: 'var(--color-brand-light)',  // Main Text
+                            muted: 'var(--color-brand-muted)',  // Secondary Text
+                            border: 'var(--color-brand-border)',// Borders
+                            red: '#C0392B',                     // Notification
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* DARK MODE (Default) */
+            --color-brand-base: #1C1C1E;
+            --color-brand-light: #F3F3F2;      /* White-ish text */
+            --color-brand-muted: #9CA3AF;      /* Gray-400 for dark mode */
+            --color-brand-border: rgba(243, 243, 242, 0.1);
+            
+            --glass-surface: rgba(243, 243, 242, 0.03);
+            --glass-border: rgba(243, 243, 242, 0.08);
+            --glass-strong: rgba(28, 28, 30, 0.85);
+            --glass-strong-border: rgba(243, 243, 242, 0.05);
+            
+            --blob-color: #1F3A5F;
+            --blob-opacity: 0.15;
+        }
+
+        body.light-mode {
+            /* LIGHT MODE */
+            --color-brand-base: #F3F3F2;       /* Light BG */
+            --color-brand-light: #1C1C1E;      /* Dark Text */
+            --color-brand-muted: #4B5563;      /* Gray-600 for light mode (Darker for readability) */
+            --color-brand-border: rgba(28, 28, 30, 0.1);
+            
+            --glass-surface: rgba(28, 28, 30, 0.05);
+            --glass-border: rgba(28, 28, 30, 0.1);
+            --glass-strong: rgba(243, 243, 242, 0.85);
+            --glass-strong-border: rgba(28, 28, 30, 0.1);
+            
+            --blob-color: #1F3A5F;
+            --blob-opacity: 0.08;
+        }
+
+        body {
+            background-color: var(--color-brand-base);
+            color: var(--color-brand-light);
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--color-brand-base); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F3A5F; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a4d7a; 
+        }
+
+        /* Liquid Glass Utilities */
+        .liquid-glass {
+            background: var(--glass-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .liquid-glass-strong {
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-strong-border);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .liquid-button {
+            background: #1F3A5F;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(31, 58, 95, 0.3);
+            color: #ffffff; /* Always white text on blue button */
+        }
+
+        .liquid-button:hover {
+            background: #26456f;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(31, 58, 95, 0.4);
+        }
+
+        .liquid-button-outline {
+            background: transparent;
+            border: 1px solid var(--color-brand-light);
+            color: var(--color-brand-light);
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .liquid-button-outline:hover {
+            background: var(--glass-surface);
+            opacity: 1;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 40px rgba(31, 58, 95, 0.3);
+        }
+        
+        /* Background Blobs */
+        .ambient-light {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--color-brand-base);
+            pointer-events: none;
+            transition: background-color 0.5s ease;
+        }
+        
+        .blob {
+            position: absolute;
+            background: var(--blob-color);
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: var(--blob-opacity);
+            transition: opacity 0.5s ease;
+        }
+        
+        /* Red Dot Pulse */
+        .red-dot-pulse {
+            box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7);
+            animation: redPulse 2s infinite;
+        }
+        
+        @keyframes redPulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+        }
+    </style>
+</head>
+<body class="font-sans overflow-x-hidden selection:bg-brand-blue selection:text-white">
+
+    <!-- Ambient Background -->
+    <div class="ambient-light">
+        <div class="blob top-0 left-0 w-96 h-96 animate-blob"></div>
+        <div class="blob bottom-0 right-0 w-[600px] h-[600px] animate-blob animation-delay-2000" style="background: #152642;"></div>
+        <div class="blob top-1/2 left-1/2 w-80 h-80 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 liquid-glass-strong transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="text-xl font-display font-bold tracking-widest text-brand-light flex items-center gap-2 uppercase">
+                <i class="fa-solid fa-dna text-brand-blue text-2xl"></i>
+                DNA<span class="text-brand-blue font-light">Store</span>
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-10 text-xs font-medium uppercase tracking-widest text-brand-muted hover:text-brand-light transition-colors">
+                <a href="#collection" class="hover:text-brand-light transition-colors">Collection</a>
+                <a href="#why-us" class="hover:text-brand-light transition-colors">Philosophie</a>
+                <a href="#reviews" class="hover:text-brand-light transition-colors">Avis</a>
+                <a href="#faq" class="hover:text-brand-light transition-colors">FAQ</a>
+            </div>
+
+            <!-- Icons -->
+            <div class="flex items-center gap-6">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="text-brand-muted hover:text-brand-blue transition-colors focus:outline-none transform hover:rotate-12 transition-transform duration-300">
+                    <i id="theme-icon" class="fa-solid fa-sun text-lg"></i>
+                </button>
+
+                <div class="relative cursor-pointer group">
+                    <i class="fa-solid fa-bag-shopping text-lg text-brand-muted group-hover:text-brand-light transition-colors"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-brand-red text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center transform scale-0 transition-transform duration-300">0</span>
+                </div>
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden focus:outline-none text-brand-light">
+                    <i class="fa-solid fa-bars-staggered text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 bg-brand-base z-40 transform translate-x-full transition-transform duration-500 md:hidden flex flex-col justify-center items-center space-y-8">
+            <button id="close-menu-btn" class="absolute top-8 right-8 text-2xl text-brand-muted hover:text-brand-light">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <a href="#collection" class="mobile-link text-2xl font-light text-brand-light tracking-widest">Collection</a>
+            <a href="#why-us" class="mobile-link text-2xl font-light text-brand-light tracking-widest">Philosophie</a>
+            <a href="#reviews" class="mobile-link text-2xl font-light text-brand-light tracking-widest">Avis</a>
+            <a href="#faq" class="mobile-link text-2xl font-light text-brand-light tracking-widest">FAQ</a>
+            <button onclick="toggleTheme()" class="text-brand-light flex items-center gap-2 border border-brand-border px-6 py-2 rounded-full">
+                <i id="theme-icon-mobile" class="fa-solid fa-sun"></i> <span>Changer Mode</span>
+            </button>
+            <a href="https://wa.me/22600000000" class="px-8 py-3 bg-brand-blue text-white rounded-sm hover:bg-opacity-90 transition-all uppercase tracking-widest text-sm shadow-lg shadow-brand-blue/20">WhatsApp</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="container mx-auto px-6 text-center relative z-10" data-aos="fade-up" data-aos-duration="1500">
+            <span class="inline-block py-2 px-4 mb-6 border border-brand-border rounded-full liquid-glass text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted">
+                Collection 2025
+            </span>
+            <h1 class="text-5xl md:text-7xl font-display font-light text-brand-light leading-tight mb-8 text-glow">
+                Ton ADN. <br><span class="font-bold text-brand-light">Ton Style.</span>
+            </h1>
+            <p class="text-base md:text-lg text-brand-muted mb-12 max-w-xl mx-auto font-light leading-relaxed">
+                Style. Confort. Tendance. Livraison rapide partout au Burkina.
+                L'élégance urbaine redéfinie.
+            </p>
+            <div class="flex flex-col md:flex-row gap-6 justify-center items-center">
+                <a href="#collection" class="liquid-button px-10 py-4 text-xs font-bold uppercase tracking-widest rounded-sm">
+                    Voir la collection
+                </a>
+                <a href="https://wa.me/22600000000" class="liquid-button-outline px-10 py-4 rounded-sm text-xs uppercase tracking-widest font-bold">
+                   Commander via WhatsApp
+                </a>
+            </div>
+        </div>
+        
+        <!-- Scroll Line -->
+        <div class="absolute bottom-0 left-1/2 w-px h-24 bg-gradient-to-b from-transparent to-brand-border"></div>
+    </header>
+
+    <!-- Products Section -->
+    <section id="collection" class="py-32 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-end mb-16 border-b border-brand-border pb-6" data-aos="fade-up">
+                <h2 class="text-3xl font-display font-light text-brand-light">Sélection <span class="font-bold text-brand-blue">Premium</span></h2>
+                <div class="hidden md:block w-24 h-1 bg-brand-blue rounded-full"></div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Product Card 1 -->
+                <div class="liquid-glass group rounded-sm overflow-hidden hover:bg-brand-light/5 transition-all duration-500" data-aos="fade-up" data-aos-delay="100">
+                    <div class="absolute top-4 left-4 bg-brand-red text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 z-10 shadow-lg shadow-brand-red/20">Stock limité</div>
+                    <div class="h-[350px] overflow-hidden relative flex items-center justify-center bg-black/20">
+                        <!-- Removed grayscale filter here -->
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Nike Red" class="w-4/5 object-contain transition-all duration-700 transform group-hover:scale-110 drop-shadow-2xl">
+                    </div>
+                    <div class="p-8 border-t border-brand-border">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-brand-light uppercase tracking-wider">Street Runner</h3>
+                                <div class="flex text-brand-blue text-[10px] mt-2 gap-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                                </div>
+                            </div>
+                            <span class="text-lg font-light text-brand-light">7 000 FCFA</span>
+                        </div>
+                        <div class="flex gap-4 mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-y-2 group-hover:translate-y-0">
+                            <button onclick="addToCart()" class="flex-1 py-3 bg-brand-blue text-white text-xs font-bold uppercase tracking-widest hover:bg-[#26456f] transition-all shadow-md shadow-brand-blue/20">
+                                Panier
+                            </button>
+                            <button onclick="openModal('Street Runner Red')" class="px-4 py-3 border border-brand-border hover:border-brand-light text-brand-light transition-all">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 2 -->
+                <div class="liquid-glass group rounded-sm overflow-hidden hover:bg-brand-light/5 transition-all duration-500" data-aos="fade-up" data-aos-delay="200">
+                    <div class="absolute top-4 left-4 bg-brand-blue text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 z-10 shadow-lg shadow-brand-blue/20">Best Seller</div>
+                    <div class="h-[350px] overflow-hidden relative flex items-center justify-center bg-black/20">
+                        <!-- Removed grayscale filter here -->
+                        <img src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Green Sneaker" class="w-4/5 object-contain transition-all duration-700 transform group-hover:scale-110 drop-shadow-2xl">
+                    </div>
+                    <div class="p-8 border-t border-brand-border">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-brand-light uppercase tracking-wider">Urban Force</h3>
+                                <div class="flex text-brand-blue text-[10px] mt-2 gap-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+                            <span class="text-lg font-light text-brand-light">7 000 FCFA</span>
+                        </div>
+                        <div class="flex gap-4 mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-y-2 group-hover:translate-y-0">
+                            <button onclick="addToCart()" class="flex-1 py-3 bg-brand-blue text-white text-xs font-bold uppercase tracking-widest hover:bg-[#26456f] transition-all shadow-md shadow-brand-blue/20">
+                                Panier
+                            </button>
+                            <button onclick="openModal('Urban Force Green')" class="px-4 py-3 border border-brand-border hover:border-brand-light text-brand-light transition-all">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 3 -->
+                <div class="liquid-glass group rounded-sm overflow-hidden hover:bg-brand-light/5 transition-all duration-500" data-aos="fade-up" data-aos-delay="300">
+                    <div class="absolute top-4 left-4 bg-brand-red text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 z-10 shadow-lg shadow-brand-red/20">Stock limité</div>
+                    <div class="h-[350px] overflow-hidden relative flex items-center justify-center bg-black/20">
+                         <!-- Removed grayscale filter here -->
+                        <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Sneaker Gray" class="w-4/5 object-contain transition-all duration-700 transform group-hover:scale-110 drop-shadow-2xl">
+                    </div>
+                    <div class="p-8 border-t border-brand-border">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-brand-light uppercase tracking-wider">Retro High OG</h3>
+                                <div class="flex text-brand-blue text-[10px] mt-2 gap-1">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                                </div>
+                            </div>
+                            <span class="text-lg font-light text-brand-light">7 000 FCFA</span>
+                        </div>
+                        <div class="flex gap-4 mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-y-2 group-hover:translate-y-0">
+                            <button onclick="addToCart()" class="flex-1 py-3 bg-brand-blue text-white text-xs font-bold uppercase tracking-widest hover:bg-[#26456f] transition-all shadow-md shadow-brand-blue/20">
+                                Panier
+                            </button>
+                            <button onclick="openModal('Retro High OG')" class="px-4 py-3 border border-brand-border hover:border-brand-light text-brand-light transition-all">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="#" class="inline-flex items-center text-brand-muted hover:text-brand-light transition-colors text-xs uppercase tracking-widest border-b border-brand-border pb-1 hover:border-brand-light">
+                    Voir toute la collection <i class="fa-solid fa-arrow-right ml-2 text-brand-blue"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us Section (Redesigned & Proportioned) -->
+    <!-- Removed color inversion that was causing contrast issues -->
+    <section id="why-us" class="py-16 border-t border-brand-border relative">
+         <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-display font-light text-brand-light mb-12 text-center uppercase tracking-widest">Pourquoi <span class="font-bold text-brand-blue">Nous ?</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Feature 1 -->
+                <div class="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="0">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-check-circle text-2xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Qualité vérifiée</h3>
+                    <p class="text-brand-muted text-[10px] leading-relaxed font-light">Chaque paire est inspectée et sélectionnée avec soin.</p>
+                </div>
+                <!-- Feature 2 -->
+                <div class="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-fire text-2xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Modèles actuels</h3>
+                    <p class="text-brand-muted text-[10px] leading-relaxed font-light">Inspirés des dernières tendances street et urbaines.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div class="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-tags text-2xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Prix accessibles</h3>
+                    <p class="text-brand-muted text-[10px] leading-relaxed font-light">Le meilleur rapport qualité/prix, accessible à tous.</p>
+                </div>
+                <!-- Feature 4 -->
+                <div class="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Support rapide</h3>
+                    <p class="text-brand-muted text-[10px] leading-relaxed font-light">Réponse instantanée pour toutes vos questions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Delivery & Payment -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="liquid-glass p-10 md:p-16 rounded-sm border border-brand-border">
+                <div class="flex flex-col lg:flex-row items-center gap-16">
+                    <div class="lg:w-1/2" data-aos="fade-right">
+                        <h2 class="text-3xl font-display font-light text-brand-light mb-8">Livraison & <br><span class="font-bold text-brand-blue">Paiement</span></h2>
+                        <ul class="space-y-8">
+                            <li class="flex items-start">
+                                <div class="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
+                                    <i class="fa-solid fa-truck-fast text-sm"></i>
+                                </div>
+                                <div class="ml-6">
+                                    <h4 class="text-sm font-bold text-brand-light uppercase tracking-widest">Livraison Rapide</h4>
+                                    <p class="text-brand-muted text-xs mt-1 font-light">À Ouagadougou et dans les grandes villes du Burkina.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
+                                    <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
+                                </div>
+                                <div class="ml-6">
+                                    <h4 class="text-sm font-bold text-brand-light uppercase tracking-widest">Paiement à la livraison</h4>
+                                    <p class="text-brand-muted text-xs mt-1 font-light">Payez en cash uniquement à la réception.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
+                                    <i class="fa-solid fa-lock text-sm"></i>
+                                </div>
+                                <div class="ml-6">
+                                    <h4 class="text-sm font-bold text-brand-light uppercase tracking-widest">Commande Sécurisée</h4>
+                                    <p class="text-brand-muted text-xs mt-1 font-light">Simple, direct et sans aucun risque.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="lg:w-1/2" data-aos="fade-left">
+                         <div class="relative">
+                            <div class="absolute inset-0 bg-brand-blue/20 blur-xl rounded-full"></div>
+                            <img src="https://images.unsplash.com/photo-1556906781-9a412961c28c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Delivery" class="relative rounded-sm shadow-2xl border border-brand-border opacity-90 grayscale hover:grayscale-0 transition-all duration-700">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section id="reviews" class="py-24 border-t border-brand-border">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-2xl font-display font-light text-brand-light mb-16 uppercase tracking-widest">Ils nous font <span class="font-bold text-brand-blue">confiance</span></h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Review 1 -->
+                <div class="liquid-glass p-8 rounded-sm" data-aos="flip-left">
+                    <div class="flex text-brand-blue mb-6 justify-center gap-1 text-xs">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-brand-muted italic mb-6 font-light text-sm">"Bonne qualité, livraison rapide. Exactement comme sur la photo. Je valide fort !"</p>
+                    <div class="text-xs font-bold text-brand-light uppercase tracking-widest">- Ismaël S.</div>
+                </div>
+                
+                <!-- Review 2 -->
+                <div class="liquid-glass p-8 rounded-sm" data-aos="flip-left" data-aos-delay="100">
+                    <div class="flex text-brand-blue mb-6 justify-center gap-1 text-xs">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-brand-muted italic mb-6 font-light text-sm">"Très satisfait, je recommande. Le service client sur WhatsApp est top."</p>
+                    <div class="text-xs font-bold text-brand-light uppercase tracking-widest">- Fatou O.</div>
+                </div>
+
+                <!-- Review Placeholder -->
+                <div class="liquid-glass p-8 rounded-sm opacity-50 border-dashed border-brand-border" data-aos="flip-left" data-aos-delay="200">
+                    <div class="h-full flex flex-col justify-center items-center">
+                        <i class="fa-regular fa-comment-dots text-2xl text-brand-light mb-4"></i>
+                        <p class="text-brand-muted text-xs font-light">Rejoins la communauté DNAStore.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community -->
+    <section class="py-24 relative overflow-hidden bg-brand-light/5">
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h2 class="text-3xl font-display font-light text-brand-light mb-8">Rejoins <span class="font-bold text-brand-blue">DNAStore</span></h2>
+            <div class="flex flex-wrap justify-center gap-8 text-brand-muted mb-12 text-xs font-medium uppercase tracking-widest">
+                <span class="flex items-center"><i class="fa-solid fa-check text-brand-blue mr-2"></i> Nouveautés</span>
+                <span class="flex items-center"><i class="fa-solid fa-check text-brand-blue mr-2"></i> Exclusivités</span>
+                <span class="flex items-center"><i class="fa-solid fa-check text-brand-blue mr-2"></i> Drops limités</span>
+            </div>
+            <div class="flex justify-center gap-6">
+                <a href="#" class="liquid-button px-8 py-3 text-white rounded-sm text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-brands fa-facebook"></i> Facebook
+                </a>
+                <a href="#" class="liquid-button-outline px-8 py-3 rounded-sm text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-brands fa-instagram"></i> Instagram
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-24 border-t border-brand-border bg-brand-base">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <h2 class="text-2xl font-display font-light text-center text-brand-light mb-12 uppercase tracking-widest">Questions <span class="font-bold text-brand-blue">Fréquentes</span></h2>
+            
+            <div class="space-y-4">
+                <!-- Item 1 -->
+                <div class="liquid-glass rounded-sm overflow-hidden">
+                    <button class="faq-btn w-full px-8 py-6 text-left hover:bg-brand-light/5 flex justify-between items-center transition-colors">
+                        <span class="text-sm font-bold text-brand-light uppercase tracking-widest">Les chaussures sont-elles neuves ?</span>
+                        <i class="fa-solid fa-chevron-down text-brand-muted transition-transform text-xs"></i>
+                    </button>
+                    <div class="faq-content hidden px-8 py-6 text-brand-muted border-t border-brand-border text-xs font-light leading-relaxed">
+                        Oui, toutes nos chaussures sont neuves, dans leur boîte d'origine et jamais portées.
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="liquid-glass rounded-sm overflow-hidden">
+                    <button class="faq-btn w-full px-8 py-6 text-left hover:bg-brand-light/5 flex justify-between items-center transition-colors">
+                        <span class="text-sm font-bold text-brand-light uppercase tracking-widest">Puis-je payer à la livraison ?</span>
+                        <i class="fa-solid fa-chevron-down text-brand-muted transition-transform text-xs"></i>
+                    </button>
+                    <div class="faq-content hidden px-8 py-6 text-brand-muted border-t border-brand-border text-xs font-light leading-relaxed">
+                        Absolument. Pour assurer votre confiance, le paiement à la livraison est disponible sur Ouagadougou et certaines zones.
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="liquid-glass rounded-sm overflow-hidden">
+                    <button class="faq-btn w-full px-8 py-6 text-left hover:bg-brand-light/5 flex justify-between items-center transition-colors">
+                        <span class="text-sm font-bold text-brand-light uppercase tracking-widest">Délais de livraison ?</span>
+                        <i class="fa-solid fa-chevron-down text-brand-muted transition-transform text-xs"></i>
+                    </button>
+                    <div class="faq-content hidden px-8 py-6 text-brand-muted border-t border-brand-border text-xs font-light leading-relaxed">
+                        Nos délais sont généralement compris entre 24h et 72h selon votre localisation.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-32 text-center relative overflow-hidden">
+        <div class="container mx-auto px-6 relative z-10" data-aos="zoom-in">
+            <h2 class="text-4xl md:text-5xl font-display font-light text-brand-light mb-6">Trouver ta paire.</h2>
+            <p class="text-sm text-brand-muted mb-12 uppercase tracking-widest">Exprime ton style. Affirme ton ADN.</p>
+            <div class="flex flex-col md:flex-row justify-center gap-6">
+                <a href="#collection" class="liquid-button bg-brand-light text-brand-base hover:bg-gray-200 px-10 py-4 font-bold text-xs uppercase tracking-widest rounded-sm border-none shadow-lg">
+                    Commander
+                </a>
+                <a href="https://wa.me/22600000000" class="px-10 py-4 border border-brand-border text-brand-light font-bold text-xs uppercase tracking-widest hover:border-brand-light transition-colors rounded-sm">
+                    WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black py-16 border-t border-brand-light/10 text-xs">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-12">
+                <div>
+                    <a href="#" class="text-lg font-bold tracking-widest text-brand-light uppercase mb-6 block">
+                        DNA<span class="text-brand-blue">Store</span>
+                    </a>
+                    <p class="text-gray-500 max-w-xs font-light">
+                        Redéfinir le standard du streetwear au Burkina Faso.
+                    </p>
+                </div>
+                
+                <div class="flex gap-12 text-gray-500 font-light uppercase tracking-widest">
+                    <div class="flex flex-col gap-4">
+                        <a href="#collection" class="hover:text-brand-light transition-colors">Collection</a>
+                        <a href="#" class="hover:text-brand-light transition-colors">À propos</a>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <a href="#" class="hover:text-brand-light transition-colors">Livraison</a>
+                        <a href="#" class="hover:text-brand-light transition-colors">Contact</a>
+                    </div>
+                </div>
+
+                <div class="text-right text-gray-500 font-light">
+                    <p class="mb-2">Ouagadougou, BF</p>
+                    <p>+226 00 00 00 00</p>
+                </div>
+            </div>
+            <div class="mt-16 pt-8 border-t border-brand-light/5 text-center text-gray-600 font-light uppercase tracking-widest text-[10px]">
+                &copy; 2025 DNAStore. Tous droits réservés.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-brand-light text-brand-base px-8 py-4 shadow-2xl transform translate-y-32 transition-transform duration-500 z-50 flex items-center gap-4 border border-gray-200">
+        <!-- Accent Rouge (2%) -->
+        <div class="w-2 h-2 bg-brand-red rounded-full red-dot-pulse"></div>
+        <div>
+            <h4 class="font-bold text-sm uppercase tracking-wider">Ajouté au panier</h4>
+        </div>
+    </div>
+
+    <!-- Product Modal (Liquid) -->
+    <div id="modal" class="fixed inset-0 bg-[#1C1C1E]/95 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
+        <div class="liquid-glass border border-brand-border w-full max-w-lg p-10 relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-brand-muted hover:text-brand-light transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 id="modal-title" class="text-3xl font-display text-brand-light mb-2">Produit</h3>
+            <div class="h-px w-12 bg-brand-blue mb-6"></div>
+            <p class="text-brand-muted font-light leading-relaxed mb-8">
+                Ce modèle incarne l'esthétique minimaliste moderne. Disponible immédiatement pour une livraison sécurisée.
+            </p>
+            <a href="https://wa.me/22600000000" class="block w-full py-4 bg-brand-light text-brand-base font-bold text-center uppercase tracking-widest hover:bg-gray-200 transition-colors text-xs shadow-lg">
+                Commander sur WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Init Animation Library
+        AOS.init({
+            once: true,
+            offset: 50,
+            duration: 1000,
+            easing: 'ease-out-cubic'
+        });
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const iconMobile = document.getElementById('theme-icon-mobile');
+            
+            body.classList.toggle('light-mode');
+            
+            // Toggle Icon
+            if (body.classList.contains('light-mode')) {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                if(iconMobile) {
+                    iconMobile.classList.remove('fa-sun');
+                    iconMobile.classList.add('fa-moon');
+                }
+            } else {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                if(iconMobile) {
+                    iconMobile.classList.remove('fa-moon');
+                    iconMobile.classList.add('fa-sun');
+                }
+            }
+        }
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-4');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2');
+            }
+        });
+
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu);
+        
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', toggleMenu);
+        });
+
+        // FAQ Logic
+        const faqBtns = document.querySelectorAll('.faq-btn');
+        faqBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const content = btn.nextElementSibling;
+                const icon = btn.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+
+        // Cart Logic
+        let cartCount = 0;
+        const cartBadge = document.getElementById('cart-count');
+        const toast = document.getElementById('toast');
+
+        function addToCart() {
+            cartCount++;
+            cartBadge.innerText = cartCount;
+            cartBadge.classList.remove('scale-0');
+            cartBadge.classList.add('scale-100');
+            
+            // Show Toast
+            toast.classList.remove('translate-y-32');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32');
+            }, 3000);
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+
+        function openModal(productName) {
+            modalTitle.innerText = productName;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Close modal on click outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
