@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CONTACTS } from '@/config'
 
 export default function Footer() {
   return (
@@ -18,13 +19,13 @@ export default function Footer() {
                 Redéfinir le standard du streetwear au Burkina Faso avec style et authenticité.
               </p>
               <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                <a href={CONTACTS.social.facebook} className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
                   <i className="fa-brands fa-facebook-f"></i>
                 </a>
-                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                <a href={CONTACTS.social.instagram} className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
                   <i className="fa-brands fa-instagram"></i>
                 </a>
-                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                <a href={CONTACTS.social.whatsapp} className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
                   <i className="fa-brands fa-whatsapp"></i>
                 </a>
               </div>
@@ -58,15 +59,15 @@ export default function Footer() {
               <ul className="space-y-4 text-sm text-brand-muted">
                 <li className="flex items-start gap-3">
                   <i className="fa-solid fa-location-dot text-brand-blue mt-1"></i>
-                  <span>Ouagadougou, Burkina Faso</span>
+                  <span>{CONTACTS.address.full}</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <i className="fa-solid fa-phone text-brand-blue"></i>
-                  <a href="tel:+22600000000" className="hover:text-brand-light transition-colors">+226 00 00 00 00</a>
+                  <a href={`tel:${CONTACTS.phoneRaw}`} className="hover:text-brand-light transition-colors">{CONTACTS.phone}</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <i className="fa-solid fa-envelope text-brand-blue"></i>
-                  <a href="mailto:contact@dnastore.bf" className="hover:text-brand-light transition-colors">contact@dnastore.bf</a>
+                  <a href={`mailto:${CONTACTS.email}`} className="hover:text-brand-light transition-colors">{CONTACTS.email}</a>
                 </li>
               </ul>
             </div>

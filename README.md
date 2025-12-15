@@ -6,18 +6,24 @@ Bienvenue sur le dépôt de **DNAStore**, une plateforme e-commerce moderne avec
 
 ### Frontend Public
 *   **Design iOS 26 Liquid Glass** : Effets vitreux, backdrop-blur, dégradés, animations fluides
-*   **Catalogue Interactif** : Produits avec images, filtres, recherche
-*   **Panier Dynamique** : Gestion en temps réel avec localStorage
+*   **Header Auto-Hide** : Disparaît au scroll pour maximiser l'espace
+*   **Catalogue Pinterest** : Affichage masonry responsive des produits
+*   **Filtres & Recherche** : Recherche en temps réel et filtres par catégorie
+*   **Panier Dynamique** : Gestion en temps réel avec localStorage et images
 *   **Commande WhatsApp** : Processus simplifié avec message pré-rempli
-*   **Pages** : Accueil, Produits, Panier, Contact, À propos
-*   **Responsive** : Mobile, Tablette, Desktop
+*   **Réservation Stock** : Système de réservation 24h automatique
+*   **Pages Légales** : Conditions d'utilisation et Confidentialité
+*   **Configuration Centralisée** : Contacts modifiables via JSON
+*   **Responsive** : Mobile, Tablette, Desktop optimisé
 
 ### Dashboard Admin
 *   **Authentification** : Connexion sécurisée avec Supabase Auth
-*   **Dashboard** : Statistiques en temps réel (produits, commandes, en attente)
+*   **Dashboard Amélioré** : Statistiques en temps réel avec graphiques
 *   **Gestion Produits** : CRUD complet avec upload d'images (Supabase Storage)
-*   **Gestion Commandes** : Liste, filtres, mise à jour des statuts
-*   **Composants Réutilisables** : StatusBadge, PageHeader, EmptyState, ImageUpload
+*   **Gestion Commandes** : Liste, filtres, changement de statut direct
+*   **Gestion Stock Automatique** : Réservation 24h et restitution auto
+*   **Graphiques Ventes** : Évolution des ventes avec filtres (7j/30j/1an)
+*   **Cron Jobs** : Expiration automatique des réservations
 
 ## 🛠 Technologies
 
@@ -67,24 +73,23 @@ Bienvenue sur le dépôt de **DNAStore**, une plateforme e-commerce moderne avec
 ```
 DNAstore/
 ├── public/
-│   ├── Geminlogo (1).png
-│   ├── robots.txt
-│   └── sitemap.xml
 ├── src/
 │   ├── components/
 │   │   ├── admin/
 │   │   │   ├── AdminLayout.js
 │   │   │   ├── EmptyState.js
 │   │   │   ├── ImageUpload.js
+│   │   │   ├── OrdersChart.js
 │   │   │   ├── PageHeader.js
 │   │   │   └── StatusBadge.js
+│   │   ├── Background.js
 │   │   ├── CartItem.js
 │   │   ├── Footer.js
 │   │   ├── Header.js
-│   │   ├── Layout.js
-│   │   ├── Loading.js
-│   │   ├── ProductCard.js
-│   │   └── Toast.js
+│   │   └── Layout.js
+│   ├── config/
+│   │   ├── contacts.json (Configuration centralisée)
+│   │   └── index.js (Helpers)
 │   ├── lib/
 │   │   ├── cart.js
 │   │   ├── storage.js
@@ -92,47 +97,45 @@ DNAstore/
 │   │   └── validation.js
 │   ├── pages/
 │   │   ├── admin/
-│   │   │   ├── commandes/
-│   │   │   │   └── index.js
+│   │   │   ├── commandes/index.js
 │   │   │   ├── produits/
-│   │   │   │   ├── modifier/
-│   │   │   │   │   └── [id].js
-│   │   │   │   ├── ajouter.js
-│   │   │   │   └── index.js
 │   │   │   ├── dashboard.js
 │   │   │   └── login.js
-│   │   ├── produit/
-│   │   │   └── [id].js
+│   │   ├── api/cron/expire-reservations.js
+│   │   ├── produit/[id].js
 │   │   ├── index.js
 │   │   ├── produits.js
 │   │   ├── panier.js
 │   │   ├── contact.js
 │   │   ├── a-propos.js
-│   │   ├── 404.js
-│   │   ├── _app.js
-│   │   ├── _document.js
-│   │   └── _error.js
+│   │   ├── conditions.js
+│   │   └── confidentialite.js
 │   └── styles/
 │       └── globals.css
+├── vercel.json (Cron configuration)
 ├── .env.local
-├── .env.example
 ├── .gitignore
-├── jsconfig.json
-├── middleware.js
-├── next.config.js
-├── package.json
-├── postcss.config.js
-└── tailwind.config.js
+└── package.json
 ```
 
 ## 📚 Documentation
 
 *   [SETUP.md](./SETUP.md) - Configuration Supabase (tables, RLS, storage)
-*   [ROADMAP.md](./ROADMAP.md) - Plan de développement
-*   [STYLE_GUIDE.md](./STYLE_GUIDE.md) - Guide du style iOS 26 Liquid Glass
-*   [REFACTORING.md](./REFACTORING.md) - Optimisations effectuées
-*   [COHERENCE.md](./COHERENCE.md) - Corrections de cohérence
-*   [SUPABASE_STORAGE_GUIDE.md](./SUPABASE_STORAGE_GUIDE.md) - Configuration du storage
+*   [ROADMAP.md](./ROADMAP.md) - Plan de développement et fonctionnalités
+
+## ⚙️ Configuration
+
+### Contacts
+Tous les contacts du site sont centralisés dans `src/config/contacts.json` :
+```json
+{
+  "phone": "+226 00 00 00 00",
+  "phoneRaw": "22600000000",
+  "email": "contact@dnastore.bf",
+  "social": { "facebook": "#", "instagram": "#" }
+}
+```
+Modifiez ce fichier pour mettre à jour tous les contacts sur le site.
 
 ## 🎯 Pages Admin
 
@@ -142,14 +145,31 @@ DNAstore/
 *   Rôle : `admin` dans la table `users`
 
 ### Fonctionnalités
-*   **Dashboard** : Statistiques en temps réel
+*   **Dashboard** : Statistiques en temps réel + graphiques ventes
 *   **Produits** : CRUD complet avec upload d'images
-*   **Commandes** : Liste et gestion des statuts
+*   **Commandes** : Liste, filtres et changement de statut direct
+*   **Gestion Stock** : Réservation automatique 24h
+
+## 🔄 Système de Réservation
+
+- Commande créée → Stock réservé pendant 24h
+- Après 24h → Annulation auto + restitution stock
+- Confirmée/Expédiée/Livrée → Stock définitivement déduit
+- Annulée → Stock restitué immédiatement
 
 ## 🚀 Déploiement
 
-Voir [DEPLOY.md](./DEPLOY.md) pour déployer sur Vercel.
+### Vercel
+```bash
+vercel --prod
+```
+
+Le fichier `vercel.json` configure le cron job pour l'expiration des réservations (toutes les heures).
 
 ## 📄 Licence
 
 Ce projet est sous licence MIT.
+
+---
+
+**Développé avec ❤️ pour DNAStore - Burkina Faso**

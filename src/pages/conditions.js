@@ -1,4 +1,5 @@
 import Layout from '@/components/Layout'
+import { CONTACTS } from '@/config'
 
 export default function Conditions() {
   return (
@@ -64,9 +65,9 @@ export default function Conditions() {
               <h2 className="text-xl font-bold text-brand-light mb-4 uppercase tracking-wider">9. Contact</h2>
               <p>Pour toute question concernant ces conditions d'utilisation, veuillez nous contacter :</p>
               <ul className="list-none space-y-2 ml-4 mt-3">
-                <li><i className="fa-solid fa-envelope text-brand-blue mr-2"></i> contact@dnastore.bf</li>
-                <li><i className="fa-solid fa-phone text-brand-blue mr-2"></i> +226 00 00 00 00</li>
-                <li><i className="fa-solid fa-location-dot text-brand-blue mr-2"></i> Ouagadougou, Burkina Faso</li>
+                <li><i className="fa-solid fa-envelope text-brand-blue mr-2"></i> {CONTACTS.email}</li>
+                <li><i className="fa-solid fa-phone text-brand-blue mr-2"></i> {CONTACTS.phone}</li>
+                <li><i className="fa-solid fa-location-dot text-brand-blue mr-2"></i> {CONTACTS.address.full}</li>
               </ul>
             </section>
 

@@ -11,6 +11,7 @@ Comment tracker les commandes lorsque les clients commandent via WhatsApp ?
 ### 📋 Principe
 
 Au lieu d'envoyer directement vers WhatsApp, nous :
+
 1. **Enregistrons la commande** dans Supabase
 2. **Générons le message** WhatsApp automatiquement
 3. **Ouvrons WhatsApp** avec le message pré-rempli
@@ -35,6 +36,7 @@ Panier → /commander → Formulaire → Enregistrement DB → WhatsApp → Conf
 ### Page `/commander`
 
 #### Formulaire de Commande
+
 - ✅ Nom complet du client
 - ✅ Téléphone WhatsApp
 - ✅ Ville (Ouagadougou, Bobo-Dioulasso, Autre)
@@ -43,12 +45,14 @@ Panier → /commander → Formulaire → Enregistrement DB → WhatsApp → Conf
 - ✅ Mode de paiement (Cash / Mobile Money)
 
 #### Récapitulatif
+
 - ✅ Liste des articles du panier
 - ✅ Quantités et tailles
 - ✅ Prix unitaires et total
 - ✅ Calcul automatique du total
 
 #### Traitement
+
 ```javascript
 1. Validation du formulaire
 2. Création de la commande dans `orders`
@@ -74,6 +78,7 @@ Panier → /commander → Formulaire → Enregistrement DB → WhatsApp → Conf
 ### Données Enregistrées
 
 #### Table `orders`
+
 ```sql
 - id (UUID)
 - customer_name
@@ -88,6 +93,7 @@ Panier → /commander → Formulaire → Enregistrement DB → WhatsApp → Conf
 ```
 
 #### Table `order_items`
+
 ```sql
 - id
 - order_id (FK)
@@ -116,6 +122,7 @@ Le dashboard admin peut maintenant afficher :
 ### Voir les Commandes
 
 Dans `/admin/commandes`, vous pouvez :
+
 - ✅ Voir toutes les commandes
 - ✅ Filtrer par statut
 - ✅ Voir les détails (client, produits, montant)
@@ -126,9 +133,9 @@ Dans `/admin/commandes`, vous pouvez :
 ```javascript
 // Exemple de mise à jour
 const { error } = await supabase
-  .from('orders')
-  .update({ status: 'processing' })
-  .eq('id', orderId)
+  .from("orders")
+  .update({ status: "processing" })
+  .eq("id", orderId);
 ```
 
 ### Statuts Disponibles
@@ -150,7 +157,7 @@ const { error } = await supabase
 
 📋 *Commande #12345678*
 
-👤 *Client:* Jean Dupont
+👤 *Client:* Aicha Sowt
 📞 *Téléphone:* +226 XX XX XX XX
 📍 *Ville:* Ouagadougou
 🏠 *Adresse:* Quartier Cissin, Rue 12.34
@@ -173,17 +180,20 @@ const { error } = await supabase
 ### Pour le Business
 
 1. **📊 Tracking Complet**
+
    - Toutes les commandes sont enregistrées
    - Stats en temps réel
    - Historique complet
 
 2. **📈 Analyse des Données**
+
    - Produits populaires
    - Pics de vente
    - Zones géographiques
    - Taux de conversion
 
 3. **🔄 Gestion Facilitée**
+
    - Liste centralisée des commandes
    - Mise à jour des statuts
    - Suivi de livraison
@@ -196,11 +206,13 @@ const { error } = await supabase
 ### Pour le Client
 
 1. **✅ Confirmation Immédiate**
+
    - Numéro de commande
    - Récapitulatif détaillé
    - Prochaines étapes claires
 
 2. **📱 Simplicité**
+
    - Message WhatsApp pré-rempli
    - Pas besoin de tout retaper
    - Confirmation en un clic
@@ -219,17 +231,20 @@ const { error } = await supabase
 Pour automatiser complètement, vous pouvez utiliser l'API WhatsApp Business :
 
 #### Avantages
+
 - ✅ Envoi automatique de messages
 - ✅ Notifications de statut
 - ✅ Conversations dans le dashboard
 - ✅ Templates de messages
 
 #### Inconvénients
+
 - ❌ Coût (API payante)
 - ❌ Configuration complexe
 - ❌ Vérification Meta Business
 
 #### Fournisseurs
+
 - **Twilio** : https://www.twilio.com/whatsapp
 - **MessageBird** : https://messagebird.com
 - **360Dialog** : https://www.360dialog.com
@@ -241,18 +256,18 @@ Recevoir automatiquement les réponses WhatsApp :
 
 ```javascript
 // Exemple de webhook
-app.post('/webhook/whatsapp', async (req, res) => {
-  const { from, body } = req.body
-  
+app.post("/webhook/whatsapp", async (req, res) => {
+  const { from, body } = req.body;
+
   // Analyser le message
-  if (body.includes('confirme')) {
+  if (body.includes("confirme")) {
     // Mettre à jour le statut
     await supabase
-      .from('orders')
-      .update({ status: 'processing' })
-      .eq('phone', from)
+      .from("orders")
+      .update({ status: "processing" })
+      .eq("phone", from);
   }
-})
+});
 ```
 
 ### Option 4 : QR Code de Commande
@@ -260,9 +275,11 @@ app.post('/webhook/whatsapp', async (req, res) => {
 Générer un QR code unique par commande :
 
 ```javascript
-import QRCode from 'qrcode'
+import QRCode from "qrcode";
 
-const qrCode = await QRCode.toDataURL(`https://dnastore.com/commande/${orderId}`)
+const qrCode = await QRCode.toDataURL(
+  `https://dnastore.com/commande/${orderId}`
+);
 ```
 
 ---
@@ -273,31 +290,29 @@ const qrCode = await QRCode.toDataURL(`https://dnastore.com/commande/${orderId}`
 
 ```javascript
 const { data } = await supabase
-  .from('orders')
-  .select('total_amount')
-  .gte('created_at', startOfMonth)
-  .lte('created_at', endOfMonth)
+  .from("orders")
+  .select("total_amount")
+  .gte("created_at", startOfMonth)
+  .lte("created_at", endOfMonth);
 
-const revenue = data.reduce((sum, order) => sum + order.total_amount, 0)
+const revenue = data.reduce((sum, order) => sum + order.total_amount, 0);
 ```
 
 ### Produits les Plus Vendus
 
 ```javascript
-const { data } = await supabase
-  .from('order_items')
-  .select(`
+const { data } = await supabase.from("order_items").select(`
     product_id,
     quantity,
     products (name)
-  `)
+  `);
 
 // Grouper et compter
 const topProducts = data.reduce((acc, item) => {
-  const key = item.product_id
-  acc[key] = (acc[key] || 0) + item.quantity
-  return acc
-}, {})
+  const key = item.product_id;
+  acc[key] = (acc[key] || 0) + item.quantity;
+  return acc;
+}, {});
 ```
 
 ### Taux de Conversion
@@ -305,16 +320,17 @@ const topProducts = data.reduce((acc, item) => {
 ```javascript
 // Commandes créées vs commandes confirmées
 const { data: pending } = await supabase
-  .from('orders')
-  .select('id', { count: 'exact' })
-  .eq('status', 'pending')
+  .from("orders")
+  .select("id", { count: "exact" })
+  .eq("status", "pending");
 
 const { data: confirmed } = await supabase
-  .from('orders')
-  .select('id', { count: 'exact' })
-  .neq('status', 'pending')
+  .from("orders")
+  .select("id", { count: "exact" })
+  .neq("status", "pending");
 
-const conversionRate = (confirmed.count / (pending.count + confirmed.count)) * 100
+const conversionRate =
+  (confirmed.count / (pending.count + confirmed.count)) * 100;
 ```
 
 ---
@@ -331,6 +347,7 @@ const conversionRate = (confirmed.count / (pending.count + confirmed.count)) * 1
 ### Politique de Confidentialité
 
 Assurez-vous d'avoir une politique de confidentialité mentionnant :
+
 - Collecte des données personnelles
 - Utilisation des données
 - Conservation des données

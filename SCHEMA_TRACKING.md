@@ -42,7 +42,7 @@
      │     avec numéro de commande                            │
      │◀────────────────────────────────────────────────────────│
      │                                                          │
-     
+
                                                     ┌──────────┴──────────┐
                                                     │   DASHBOARD ADMIN   │
                                                     │                     │
@@ -171,7 +171,7 @@
 
 📋 *Commande #a1b2c3d4*
 
-👤 *Client:* Jean Dupont
+👤 *Client:* Aicha Sowt
 📞 *Téléphone:* +226 70 12 34 56
 📍 *Ville:* Ouagadougou
 🏠 *Adresse:* Quartier Cissin, Rue 12.34, Maison bleue

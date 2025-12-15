@@ -1,0 +1,20 @@
+{
+  "phone": "+226 56 42 53 17",
+  "phoneRaw": "22656425317",
+  "email": "dickoalou04@gmail.com",
+  "emailSupport": "support@dnastore.bf",
+  "address": {
+    "city": "Ouagadougou",
+    "country": "Burkina Faso",
+    "full": "Ouagadougou, Burkina Faso"
+  },
+  "social": {
+    "facebook": "facebook.com/",
+    "instagram": "#",
+    "whatsapp": "https://wa.me/22600000000"
+  },
+  "hours": {
+    "weekdays": "Lundi - Samedi : 08h00 - 18h00",
+    "weekend": "Dimanche : Fermé"
+  }
+}

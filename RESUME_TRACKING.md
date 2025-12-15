@@ -13,17 +13,20 @@
 ### Nouveaux Fichiers
 
 1. **`/src/pages/commander.js`** (264 lignes)
+
    - Page de commande avec formulaire complet
    - Enregistrement dans Supabase
    - Génération du message WhatsApp
    - Redirection automatique
 
 2. **`/src/pages/commande-confirmee.js`** (112 lignes)
+
    - Page de confirmation avec récapitulatif
    - Affichage du numéro de commande
    - Instructions pour la suite
 
 3. **`/src/components/admin/OrdersChart.js`** (175 lignes)
+
    - Graphique d'évolution des ventes
    - Graphique des revenus
    - Filtres par période (7j, 30j, 1an)
@@ -36,6 +39,7 @@
 ### Fichiers Modifiés
 
 1. **`/src/pages/panier.js`**
+
    - Bouton "Commander" redirige vers `/commander`
    - Suppression de l'ancien flux WhatsApp direct
 
@@ -49,11 +53,13 @@
 ## 🔄 Nouveau Flux de Commande
 
 ### Avant (Problème)
+
 ```
 Panier → WhatsApp → ❌ Aucune donnée enregistrée
 ```
 
 ### Après (Solution)
+
 ```
 Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
                          ↓
@@ -66,10 +72,11 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ## 📊 Données Trackées
 
 ### Table `orders`
+
 ```javascript
 {
   id: "uuid",
-  customer_name: "Jean Dupont",
+  customer_name: "Aicha Sowt",
   phone: "+226 XX XX XX XX",
   city: "Ouagadougou",
   address: "Quartier Cissin...",
@@ -82,6 +89,7 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ```
 
 ### Table `order_items`
+
 ```javascript
 {
   id: 1,
@@ -116,6 +124,7 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ### Page `/commander`
 
 **Formulaire**
+
 - ✅ Nom complet
 - ✅ Téléphone WhatsApp
 - ✅ Ville (Ouagadougou, Bobo-Dioulasso, Autre)
@@ -124,12 +133,14 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 - ✅ Mode de paiement (Cash / Mobile Money)
 
 **Récapitulatif**
+
 - ✅ Liste des articles
 - ✅ Images des produits
 - ✅ Quantités et tailles
 - ✅ Prix et total
 
 **Bouton**
+
 - 🟢 "Confirmer et envoyer sur WhatsApp"
 - Loading state pendant le traitement
 
@@ -149,17 +160,20 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ### Pour le Business
 
 1. **📊 Tracking Complet**
+
    - Toutes les commandes enregistrées
    - Historique complet
    - Aucune perte de données
 
 2. **📈 Statistiques en Temps Réel**
+
    - Revenus du jour/semaine/mois
    - Nombre de commandes
    - Produits populaires
    - Taux de conversion
 
 3. **🎯 Analyse des Données**
+
    - Pics de vente
    - Zones géographiques
    - Produits les plus vendus
@@ -173,11 +187,13 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ### Pour le Client
 
 1. **✅ Confirmation Immédiate**
+
    - Numéro de commande unique
    - Récapitulatif détaillé
    - Preuve de commande
 
 2. **📱 Simplicité**
+
    - Message WhatsApp pré-rempli
    - Un seul clic pour confirmer
    - Pas besoin de tout retaper
@@ -194,22 +210,27 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 ### Pour Tester
 
 1. **Ajouter des produits au panier**
+
    ```
    http://localhost:3000/produits
    ```
 
 2. **Aller au panier**
+
    ```
    http://localhost:3000/panier
    ```
 
 3. **Cliquer sur "Passer la commande"**
+
    - Redirige vers `/commander`
 
 4. **Remplir le formulaire**
+
    - Tous les champs requis
 
 5. **Cliquer sur "Confirmer et envoyer sur WhatsApp"**
+
    - Enregistre dans Supabase
    - Ouvre WhatsApp
    - Redirige vers confirmation
@@ -227,62 +248,63 @@ Panier → Formulaire → Supabase ✅ → WhatsApp → Confirmation
 
 ```javascript
 const { data } = await supabase
-  .from('orders')
-  .select(`
+  .from("orders")
+  .select(
+    `
     *,
     order_items (
       *,
       products (*)
     )
-  `)
-  .order('created_at', { ascending: false })
+  `
+  )
+  .order("created_at", { ascending: false });
 ```
 
 ### Calculer les Revenus du Mois
 
 ```javascript
-const startOfMonth = new Date()
-startOfMonth.setDate(1)
-startOfMonth.setHours(0, 0, 0, 0)
+const startOfMonth = new Date();
+startOfMonth.setDate(1);
+startOfMonth.setHours(0, 0, 0, 0);
 
 const { data } = await supabase
-  .from('orders')
-  .select('total_amount')
-  .gte('created_at', startOfMonth.toISOString())
+  .from("orders")
+  .select("total_amount")
+  .gte("created_at", startOfMonth.toISOString());
 
-const revenue = data.reduce((sum, order) => 
-  sum + parseFloat(order.total_amount), 0
-)
+const revenue = data.reduce(
+  (sum, order) => sum + parseFloat(order.total_amount),
+  0
+);
 ```
 
 ### Produits les Plus Vendus
 
 ```javascript
-const { data } = await supabase
-  .from('order_items')
-  .select(`
+const { data } = await supabase.from("order_items").select(`
     product_id,
     quantity,
     products (name, image_url)
-  `)
+  `);
 
 // Grouper par produit
 const grouped = data.reduce((acc, item) => {
-  const key = item.product_id
+  const key = item.product_id;
   if (!acc[key]) {
     acc[key] = {
       product: item.products,
-      totalQuantity: 0
-    }
+      totalQuantity: 0,
+    };
   }
-  acc[key].totalQuantity += item.quantity
-  return acc
-}, {})
+  acc[key].totalQuantity += item.quantity;
+  return acc;
+}, {});
 
 // Trier par quantité
 const topProducts = Object.values(grouped)
   .sort((a, b) => b.totalQuantity - a.totalQuantity)
-  .slice(0, 5)
+  .slice(0, 5);
 ```
 
 ---
@@ -290,18 +312,21 @@ const topProducts = Object.values(grouped)
 ## 🔮 Améliorations Futures
 
 ### Court Terme
+
 - [ ] Notifications email à l'admin pour chaque nouvelle commande
 - [ ] Export des commandes en CSV/Excel
 - [ ] Filtres avancés dans le dashboard
 - [ ] Recherche de commandes par numéro/client
 
 ### Moyen Terme
+
 - [ ] API WhatsApp Business pour envoi automatique
 - [ ] Webhooks pour mise à jour automatique du statut
 - [ ] Système de notifications push
 - [ ] Application mobile admin
 
 ### Long Terme
+
 - [ ] Intelligence artificielle pour prédiction des ventes
 - [ ] Recommandations de produits basées sur l'historique
 - [ ] Programme de fidélité automatisé
@@ -338,11 +363,13 @@ const topProducts = Object.values(grouped)
 ✅ **Base solide** pour analyses et optimisations futures
 
 ### Le Client Garde :
+
 ✅ La **simplicité** de WhatsApp
 ✅ La **rapidité** de commande
 ✅ La **confiance** avec confirmation
 
 ### Vous Gagnez :
+
 ✅ **Toutes les données** dans votre système
 ✅ **Visibilité complète** sur votre business
 ✅ **Capacité d'analyse** et d'optimisation
@@ -353,6 +380,7 @@ const topProducts = Object.values(grouped)
 ## 📞 Support
 
 Pour toute question sur l'implémentation :
+
 1. Consultez `TRACKING_COMMANDES.md` pour les détails
 2. Vérifiez les commentaires dans le code
 3. Testez étape par étape le flux complet

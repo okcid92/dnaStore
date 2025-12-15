@@ -2,59 +2,124 @@
 
 Ce document trace la feuille de route pour le développement et l'évolution de la plateforme DNAStore.
 
-## ✅ Terminé (Phase 1 : Refonte UI & MVP)
+## ✅ Terminé (Phase 1-2 : MVP Complet)
 
-- [x] **Refonte complète du Design System**
-    - [x] Intégration de la charte graphique "Liquid Glass" (Dark/Light mode).
-    - [x] Configuration Tailwind CSS avancée (couleurs, polices, animations).
-    - [x] Installation et configuration de AOS (Animate On Scroll).
+### Design & UI/UX
+- [x] **Design System iOS 26 Liquid Glass**
+    - [x] Charte graphique complète (Dark mode)
+    - [x] Configuration Tailwind CSS avancée
+    - [x] Animations AOS et transitions fluides
+    - [x] Header auto-hide au scroll
+    - [x] Footer redesigné et responsive
+
+### Pages Frontend
 - [x] **Page d'Accueil**
-    - [x] Hero section immersive avec animations.
-    - [x] Grille produits "Pinterest-style" sur mobile.
-    - [x] Sections : Pourquoi nous, Livraison, Avis, FAQ.
-- [x] **Navigation & Layout**
-    - [x] Header responsive avec menu burger et effet verre.
-    - [x] Footer complet.
-- [x] **Page Produit**
-    - [x] Route dynamique `/produits/[slug]`.
-    - [x] Galerie d'images interactive.
-    - [x] Sélecteur de taille et détails produits.
-- [x] **Panier & Commande**
-    - [x] Page panier redesignée.
-    - [x] Logique de panier (localStorage).
-    - [x] Intégration commande WhatsApp.
-- [x] **Page Contact**
-    - [x] Formulaire de contact redesigné.
+    - [x] Hero section immersive
+    - [x] Grille produits Pinterest masonry
+    - [x] Sections interactives (hover/mobile)
+    - [x] FAQ avec accordions
+- [x] **Page Produits**
+    - [x] Layout Pinterest responsive
+    - [x] Filtres et recherche en temps réel
+    - [x] Badges stock limité/épuisé
+- [x] **Page Produit Détail**
+    - [x] Galerie d'images interactive
+    - [x] Sélecteur taille/couleur
+    - [x] Gestion quantité et stock
+- [x] **Panier**
+    - [x] Affichage images produits
+    - [x] Gestion quantités
+    - [x] Formulaire commande avec géolocalisation
+    - [x] Intégration WhatsApp
+- [x] **Contact**
+    - [x] Formulaire avec inputs redesignés
+    - [x] Infos contact dynamiques
+- [x] **À propos**
+    - [x] Footer intégré dans la page
+    - [x] Sections valeurs et avantages
+- [x] **Pages Légales**
+    - [x] Conditions d'utilisation
+    - [x] Politique de confidentialité
 
-## 🚧 En Cours (Phase 2 : Backend & Données)
+### Backend & Admin
+- [x] **Intégration Supabase**
+    - [x] Tables (products, orders, users)
+    - [x] Supabase Storage pour images
+    - [x] Row Level Security (RLS)
+- [x] **Dashboard Admin**
+    - [x] Authentification sécurisée
+    - [x] Statistiques en temps réel
+    - [x] Graphiques ventes (7j/30j/1an)
+    - [x] Changement statut direct
+- [x] **Gestion Produits**
+    - [x] CRUD complet
+    - [x] Upload images
+    - [x] Gestion stock
+- [x] **Gestion Commandes**
+    - [x] Liste avec filtres
+    - [x] Mise à jour statuts
+    - [x] Gestion stock automatique
 
-- [ ] **Intégration Supabase**
-    - [ ] Création des tables SQL (Produits, Catégories, Commandes).
-    - [ ] Connexion du client Supabase dans Next.js.
-    - [ ] Remplacement des données mockées par les données réelles.
-- [ ] **Gestion des Stocks**
-    - [ ] Affichage dynamique du stock.
-    - [ ] Gestion des ruptures de stock.
+### Fonctionnalités Avancées
+- [x] **Système de Réservation**
+    - [x] Réservation stock 24h
+    - [x] Expiration automatique (Cron)
+    - [x] Restitution stock auto
+- [x] **Configuration Centralisée**
+    - [x] Fichier contacts.json
+    - [x] Helpers pour WhatsApp/Email
+    - [x] Mise à jour globale du site
 
-## 📅 Futur (Phase 3 : Fonctionnalités Avancées)
+## 🚧 En Cours (Phase 3 : Améliorations)
 
-- [ ] **Authentification Utilisateur**
-    - [ ] Connexion/Inscription (Email, Google).
-    - [ ] Historique des commandes.
-    - [ ] Liste de souhaits (Wishlist).
-- [ ] **Tableau de Bord Admin**
-    - [ ] Interface pour ajouter/modifier des produits.
-    - [ ] Suivi des commandes.
-- [ ] **Recherche & Filtres**
-    - [ ] Barre de recherche avancée.
-    - [ ] Filtres par prix, taille, couleur.
-- [ ] **SEO & Performance**
-    - [ ] Optimisation des métadonnées pour chaque produit.
-    - [ ] Génération de Sitemap dynamique.
-    - [ ] Optimisation des images (Next/Image).
+- [ ] **Optimisations Performance**
+    - [ ] Optimisation images (Next/Image)
+    - [ ] Lazy loading composants
+    - [ ] Cache Supabase queries
+- [ ] **SEO**
+    - [ ] Métadonnées dynamiques
+    - [ ] Sitemap.xml automatique
+    - [ ] Schema.org markup
+
+## 📅 Futur (Phase 4 : Fonctionnalités Avancées)
+
+- [ ] **Authentification Client**
+    - [ ] Connexion/Inscription
+    - [ ] Historique commandes
+    - [ ] Wishlist
+    - [ ] Profil utilisateur
+- [ ] **Filtres Avancés**
+    - [ ] Filtres par prix
+    - [ ] Filtres par taille/couleur
+    - [ ] Tri (prix, popularité, nouveautés)
+- [ ] **Notifications**
+    - [ ] Email confirmation commande
+    - [ ] SMS notifications
+    - [ ] Notifications push
+- [ ] **Analytics**
+    - [ ] Google Analytics
+    - [ ] Tracking conversions
+    - [ ] Rapports ventes détaillés
 
 ## 💡 Idées pour plus tard
 
-- [ ] Blog / Actualités Streetwear.
-- [ ] Programme de fidélité.
-- [ ] Intégration paiement mobile (Orange Money, Moov Money) via API.
+- [ ] **Contenu**
+    - [ ] Blog streetwear
+    - [ ] Lookbook saisonnier
+    - [ ] Guide des tailles
+- [ ] **Fidélisation**
+    - [ ] Programme de fidélité
+    - [ ] Codes promo
+    - [ ] Parrainage
+- [ ] **Paiement**
+    - [ ] Orange Money API
+    - [ ] Moov Money API
+    - [ ] Paiement à la livraison (déjà implémenté)
+- [ ] **Marketing**
+    - [ ] Newsletter
+    - [ ] Remarketing
+    - [ ] Affiliation
+
+---
+
+**Dernière mise à jour** : Décembre 2024
