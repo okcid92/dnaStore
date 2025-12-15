@@ -30,7 +30,7 @@ git push -u origin main
 
 ---
 
-### 2. Déployer sur Vercel
+### 2. Déployer sur Vercel(uniquement)
 
 #### Option A : Via le site Vercel
 
