@@ -17,8 +17,17 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchData()
+    checkAuth()
   }, [])
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      router.push('/admin/login')
+      return
+    }
+    fetchData()
+  }
 
   const fetchData = async () => {
     try {

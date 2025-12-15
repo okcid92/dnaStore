@@ -10,8 +10,8 @@
   :root {
     /* DARK MODE (Default) */
     --color-brand-base: #1C1C1E;
-    --color-brand-light: #F3F3F2;      /* White-ish text */
-    --color-brand-muted: #9CA3AF;      /* Gray-400 for dark mode */
+    --color-brand-light: #F3F3F2;
+    --color-brand-muted: #9CA3AF;
     --color-brand-border: rgba(243, 243, 242, 0.1);
     
     --glass-surface: rgba(243, 243, 242, 0.03);
@@ -23,24 +23,34 @@
     --blob-opacity: 0.15;
     
     --grid-color: rgba(243, 243, 242, 0.15);
+    
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-text: #F3F3F2;
+    --input-placeholder: rgba(243, 243, 242, 0.4);
   }
 
   body.light-mode {
     /* LIGHT MODE */
-    --color-brand-base: #F3F3F2;       /* Light BG */
-    --color-brand-light: #1C1C1E;      /* Dark Text */
-    --color-brand-muted: #4B5563;      /* Gray-600 for light mode (Darker for readability) */
-    --color-brand-border: rgba(28, 28, 30, 0.1);
+    --color-brand-base: #F8F9FA;
+    --color-brand-light: #1C1C1E;
+    --color-brand-muted: #6B7280;
+    --color-brand-border: rgba(28, 28, 30, 0.12);
     
-    --glass-surface: rgba(28, 28, 30, 0.05);
-    --glass-border: rgba(28, 28, 30, 0.1);
-    --glass-strong: rgba(243, 243, 242, 0.85);
-    --glass-strong-border: rgba(28, 28, 30, 0.1);
+    --glass-surface: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(28, 28, 30, 0.12);
+    --glass-strong: rgba(255, 255, 255, 0.9);
+    --glass-strong-border: rgba(28, 28, 30, 0.12);
     
-    --blob-color: #1F3A5F;
-    --blob-opacity: 0.08;
+    --blob-color: #E3F2FD;
+    --blob-opacity: 0.4;
     
-    --grid-color: rgba(28, 28, 30, 0.1);
+    --grid-color: rgba(28, 28, 30, 0.05);
+    
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: rgba(28, 28, 30, 0.2);
+    --input-text: #1C1C1E;
+    --input-placeholder: rgba(28, 28, 30, 0.5);
   }
 
   body {
@@ -70,8 +80,18 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+  }
+
+  body:not(.light-mode) .liquid-glass {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  body.light-mode .liquid-glass {
+    box-shadow: 0 2px 15px rgba(31, 58, 95, 0.08);
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   .liquid-glass-strong {
@@ -108,6 +128,16 @@
   .liquid-button-outline:hover {
     background: var(--glass-surface);
     opacity: 1;
+  }
+
+  body.light-mode .liquid-button-outline {
+    border-width: 1.5px;
+    opacity: 0.9;
+  }
+
+  body.light-mode .liquid-button-outline:hover {
+    opacity: 1;
+    background: rgba(31, 58, 95, 0.05);
   }
 
   .text-glow {
@@ -162,10 +192,20 @@
     animation: grid-scroll 20s linear infinite;
   }
 
-  /* Select Options Styling */
+  /* Input Styling */
+  input, select, textarea {
+    background: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--input-text) !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--input-placeholder) !important;
+  }
+
   select option {
-    background-color: #1C1C1E;
-    color: #F3F3F2;
+    background-color: var(--color-brand-base);
+    color: var(--color-brand-light);
     padding: 8px;
   }
 
@@ -173,5 +213,16 @@
   select option:hover {
     background-color: #1F3A5F;
     color: #ffffff;
+  }
+
+  body.light-mode select option {
+    background-color: #FFFFFF;
+    color: #1C1C1E;
+  }
+
+  body.light-mode input,
+  body.light-mode select,
+  body.light-mode textarea {
+    border-width: 1.5px !important;
   }
 }

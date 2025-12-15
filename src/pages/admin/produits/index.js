@@ -11,8 +11,17 @@ export default function AdminProduits() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    fetchProducts()
+    checkAuth()
   }, [])
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      router.push('/admin/login')
+      return
+    }
+    fetchProducts()
+  }
 
   const fetchProducts = async () => {
     const { data } = await supabase

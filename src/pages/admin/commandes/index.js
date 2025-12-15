@@ -1,16 +1,27 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { supabase } from '@/lib/supabase'
 
 export default function AdminCommandes() {
+  const router = useRouter()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    fetchOrders()
+    checkAuth()
   }, [])
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      router.push('/admin/login')
+      return
+    }
+    fetchOrders()
+  }
 
   const fetchOrders = async () => {
     const { data } = await supabase

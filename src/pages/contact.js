@@ -114,6 +114,8 @@ export default function Contact() {
                     <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
                     <input
                       type="text"
+                      name="name"
+                      autoComplete="name"
                       placeholder="Ex: Aicha Sowt"
                       value={form.name}
                       onChange={(e) =>
@@ -134,6 +136,8 @@ export default function Contact() {
                       <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
                       <input
                         type="email"
+                        name="email"
+                        autoComplete="email"
                         placeholder="votre@email.com"
                         value={form.email}
                         onChange={(e) =>
@@ -152,6 +156,8 @@ export default function Contact() {
                       <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
                       <input
                         type="tel"
+                        name="tel"
+                        autoComplete="tel"
                         placeholder="+226 XX XX XX XX"
                         value={form.phone}
                         onChange={(e) =>
