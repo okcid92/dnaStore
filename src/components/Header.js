@@ -6,6 +6,8 @@ export default function Header() {
   const [cartCount, setCartCount] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
   const [isLightMode, setIsLightMode] = useState(false)
 
   useEffect(() => {
@@ -17,7 +19,17 @@ export default function Header() {
     
     // Scroll Logic
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      const currentScrollY = window.scrollY
+      
+      setIsScrolled(currentScrollY > 50)
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false)
+      } else {
+        setIsVisible(true)
+      }
+      
+      setLastScrollY(currentScrollY)
     }
     window.addEventListener('scroll', handleScroll)
 
@@ -26,7 +38,7 @@ export default function Header() {
       window.removeEventListener('cartUpdated', handleStorage)
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [])
+  }, [lastScrollY])
 
   const toggleTheme = () => {
     setIsLightMode(!isLightMode)
@@ -37,6 +49,8 @@ export default function Header() {
     <nav 
       className={`fixed w-full z-50 liquid-glass-strong transition-all duration-300 ${
         isScrolled ? 'py-2' : 'py-4'
+      } ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
       }`} 
       id="navbar"
     >
@@ -49,10 +63,9 @@ export default function Header() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-10 text-xs font-medium uppercase tracking-widest text-brand-muted hover:text-brand-light transition-colors">
-          <Link href="/#collection" className="hover:text-brand-light transition-colors">Collection</Link>
-          <Link href="/#why-us" className="hover:text-brand-light transition-colors">Philosophie</Link>
-          <Link href="/#reviews" className="hover:text-brand-light transition-colors">Avis</Link>
-          <Link href="/#faq" className="hover:text-brand-light transition-colors">FAQ</Link>
+          <Link href="/produits" className="hover:text-brand-light transition-colors">Produits</Link>
+          <Link href="/contact" className="hover:text-brand-light transition-colors">Contact</Link>
+          <Link href="/a-propos" className="hover:text-brand-light transition-colors">À propos</Link>
         </div>
 
         {/* Icons */}
@@ -100,10 +113,9 @@ export default function Header() {
         >
           <i className="fa-solid fa-xmark"></i>
         </button>
-        <Link href="/#collection" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">Collection</Link>
-        <Link href="/#why-us" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">Philosophie</Link>
-        <Link href="/#reviews" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">Avis</Link>
-        <Link href="/#faq" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">FAQ</Link>
+        <Link href="/produits" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">Produits</Link>
+        <Link href="/contact" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">Contact</Link>
+        <Link href="/a-propos" onClick={() => setMenuOpen(false)} className="mobile-link text-2xl font-light text-brand-light tracking-widest">À propos</Link>
         
         <button 
           onClick={toggleTheme} 

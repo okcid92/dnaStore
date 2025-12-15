@@ -5,10 +5,13 @@ import Link from 'next/link'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { addToCart } from '@/lib/cart'
+import { supabase } from '@/lib/supabase'
 
 export default function Home() {
   const [showToast, setShowToast] = useState(false)
   const [modalProduct, setModalProduct] = useState(null)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     AOS.init({
@@ -17,46 +20,31 @@ export default function Home() {
       duration: 1000,
       easing: 'ease-out-cubic'
     })
+    fetchProducts()
   }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(6)
+      
+      if (error) throw error
+      setProducts(data || [])
+    } catch (error) {
+      console.error('Erreur chargement produits:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAddToCart = (product) => {
     addToCart(product)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 3000)
   }
-
-  const products = [
-    {
-      id: 1,
-      name: 'Street Runner',
-      slug: 'street-runner',
-      price: 7000,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
-      badge: 'Stock limité',
-      badgeColor: 'bg-brand-red',
-      rating: 4.5
-    },
-    {
-      id: 2,
-      name: 'Urban Force',
-      slug: 'urban-force',
-      price: 7000,
-      image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
-      badge: 'Best Seller',
-      badgeColor: 'bg-brand-blue',
-      rating: 5
-    },
-    {
-      id: 3,
-      name: 'Retro High OG',
-      slug: 'retro-high-og',
-      price: 7000,
-      image: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
-      badge: 'Stock limité',
-      badgeColor: 'bg-brand-red',
-      rating: 4
-    }
-  ]
 
   const faqItems = [
     {
@@ -76,11 +64,7 @@ export default function Home() {
   return (
     <Layout>
       {/* Ambient Background */}
-      <div className="ambient-light">
-        <div className="blob top-0 left-0 w-96 h-96 animate-blob"></div>
-        <div className="blob bottom-0 right-0 w-[600px] h-[600px] animate-blob animation-delay-2000" style={{ background: '#152642' }}></div>
-        <div className="blob top-1/2 left-1/2 w-80 h-80 animate-blob animation-delay-4000"></div>
-      </div>
+
 
       {/* Hero Section */}
       <header className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -117,161 +101,119 @@ export default function Home() {
             <div className="hidden md:block w-24 h-1 bg-brand-blue rounded-full"></div>
           </div>
 
-          <div className="columns-2 md:columns-3 lg:columns-3 gap-4 space-y-4">
-            {products.map((product, index) => (
-              <div key={product.id} className="break-inside-avoid liquid-glass group rounded-sm overflow-hidden hover:bg-brand-light/5 transition-all duration-500 mb-4" data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
-                <div className={`absolute top-2 left-2 ${product.badgeColor} text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1 z-10 shadow-lg shadow-${product.badgeColor.replace('bg-', '')}/20`}>{product.badge}</div>
-                <div className="relative flex items-center justify-center bg-black/20">
-                  <img src={product.image} alt={product.name} className="w-full object-cover transition-all duration-700 transform group-hover:scale-110 drop-shadow-2xl" />
-                </div>
-                <div className="p-4 border-t border-brand-border">
-                  <div className="flex flex-col items-start mb-2">
-                    <h3 className="text-xs font-bold text-brand-light uppercase tracking-wider mb-1">{product.name}</h3>
-                    <div className="flex text-brand-blue text-[8px] gap-1 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <i key={i} className={`fa-solid ${i < Math.floor(product.rating) ? 'fa-star' : (i < product.rating ? 'fa-star-half-stroke' : 'fa-regular fa-star')}`}></i>
-                      ))}
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-blue border-t-transparent"></div>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-16 text-brand-muted">
+              <i className="fa-solid fa-box-open text-5xl mb-4 opacity-50"></i>
+              <p className="text-xs uppercase tracking-widest">Aucun produit disponible</p>
+            </div>
+          ) : (
+            <div className="columns-2 md:columns-3 lg:columns-3 gap-4 space-y-4">
+              {products.map((product, index) => (
+                <div key={product.id} className="break-inside-avoid liquid-glass group rounded-sm overflow-hidden hover:bg-brand-light/5 transition-all duration-500 mb-4" data-aos="fade-up" data-aos-delay={100 * (index + 1)}>
+                  {product.stock <= 3 && product.stock > 0 && (
+                    <div className="absolute top-2 left-2 bg-yellow-500 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1 z-10 shadow-lg">Stock limité</div>
+                  )}
+                  {product.stock === 0 && (
+                    <div className="absolute top-2 left-2 bg-gray-500 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1 z-10 shadow-lg">Épuisé</div>
+                  )}
+                  <div className="relative flex items-center justify-center bg-black/20">
+                    <img src={product.image_url || product.images?.[0] || '/placeholder.png'} alt={product.name} className="w-full object-cover transition-all duration-700 transform group-hover:scale-110 drop-shadow-2xl" />
+                  </div>
+                  <div className="p-4 border-t border-brand-border">
+                    <div className="flex flex-col items-start mb-2">
+                      <h3 className="text-xs font-bold text-brand-light uppercase tracking-wider mb-1">{product.name}</h3>
+                      <span className="text-xs font-light text-brand-light">{product.price.toLocaleString()} FCFA</span>
                     </div>
-                    <span className="text-xs font-light text-brand-light">{product.price.toLocaleString()} FCFA</span>
-                  </div>
-                  <div className="flex gap-2 mt-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-y-0 md:translate-y-2 group-hover:translate-y-0">
-                    <button onClick={() => handleAddToCart(product)} className="flex-1 py-2 bg-brand-blue text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#26456f] transition-all shadow-md shadow-brand-blue/20">
-                      Panier
-                    </button>
-                    <Link href={`/produits/${product.slug}`} className="px-3 py-2 border border-brand-border hover:border-brand-light text-brand-light transition-all flex items-center justify-center">
-                      <i className="fa-regular fa-eye text-xs"></i>
-                    </Link>
+                    <div className="flex gap-2 mt-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 translate-y-0 md:translate-y-2 group-hover:translate-y-0">
+                      <button onClick={() => handleAddToCart(product)} disabled={product.stock === 0} className="flex-1 py-2 bg-brand-blue text-white text-[10px] font-bold uppercase tracking-widest hover:bg-[#26456f] transition-all shadow-md shadow-brand-blue/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Panier
+                      </button>
+                      <Link href={`/produit/${product.id}`} className="px-3 py-2 border border-brand-border hover:border-brand-light text-brand-light transition-all flex items-center justify-center">
+                        <i className="fa-regular fa-eye text-xs"></i>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-16">
-            <Link href="#" className="inline-flex items-center text-brand-muted hover:text-brand-light transition-colors text-xs uppercase tracking-widest border-b border-brand-border pb-1 hover:border-brand-light">
+            <Link href="/produits" className="inline-flex items-center text-brand-muted hover:text-brand-light transition-colors text-xs uppercase tracking-widest border-b border-brand-border pb-1 hover:border-brand-light">
               Voir toute la collection <i className="fa-solid fa-arrow-right ml-2 text-brand-blue"></i>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Why Us Section */}
+      {/* Features Section */}
       <section id="why-us" className="py-16 border-t border-brand-border relative">
          <div className="container mx-auto px-6">
-            <h2 className="text-3xl font-display font-light text-brand-light mb-12 text-center uppercase tracking-widest">Pourquoi <span className="font-bold text-brand-blue">Nous ?</span></h2>
+            <h2 className="text-3xl font-display font-light text-brand-light mb-12 text-center uppercase tracking-widest">Pourquoi <span className="font-bold text-brand-blue">DNAStore</span></h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="0">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
-                        <i className="fa-solid fa-check-circle text-2xl"></i>
-                    </div>
-                    <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Qualité vérifiée</h3>
-                    <p className="text-brand-muted text-[10px] leading-relaxed font-light">Chaque paire est inspectée et sélectionnée avec soin.</p>
-                </div>
-                <div className="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="100">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
-                        <i className="fa-solid fa-fire text-2xl"></i>
-                    </div>
-                    <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Modèles actuels</h3>
-                    <p className="text-brand-muted text-[10px] leading-relaxed font-light">Inspirés des dernières tendances street et urbaines.</p>
-                </div>
-                <div className="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="200">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
-                        <i className="fa-solid fa-tags text-2xl"></i>
-                    </div>
-                    <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Prix accessibles</h3>
-                    <p className="text-brand-muted text-[10px] leading-relaxed font-light">Le meilleur rapport qualité/prix, accessible à tous.</p>
-                </div>
-                <div className="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass" data-aos="fade-up" data-aos-delay="300">
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
-                        <i className="fa-brands fa-whatsapp text-2xl"></i>
-                    </div>
-                    <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Support rapide</h3>
-                    <p className="text-brand-muted text-[10px] leading-relaxed font-light">Réponse instantanée pour toutes vos questions.</p>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <FeatureCard 
+                  icon="fa-check-circle" 
+                  title="Qualité vérifiée" 
+                  shortText="Chaque paire est inspectée et sélectionnée avec soin."
+                  fullText="Nous inspectons minutieusement chaque produit avant expédition. Contrôle qualité rigoureux pour garantir votre satisfaction totale."
+                  delay="0"
+                />
+                <FeatureCard 
+                  icon="fa-fire" 
+                  title="Modèles actuels" 
+                  shortText="Inspirés des dernières tendances street et urbaines."
+                  fullText="Collection mise à jour régulièrement avec les dernières tendances. Styles authentiques pour affirmer votre personnalité."
+                  delay="100"
+                />
+                <FeatureCard 
+                  icon="fa-tags" 
+                  title="Prix accessibles" 
+                  shortText="Le meilleur rapport qualité/prix, accessible à tous."
+                  fullText="Qualité premium sans compromettre votre budget. Des prix justes et transparents pour tous nos clients."
+                  delay="200"
+                />
+                <FeatureCard 
+                  icon="fa-whatsapp" 
+                  iconBrand
+                  title="Support rapide" 
+                  shortText="Réponse instantanée pour toutes vos questions."
+                  fullText="Équipe disponible 7j/7 sur WhatsApp. Réponses rapides et conseils personnalisés pour vous accompagner."
+                  delay="300"
+                />
             </div>
-        </div>
-      </section>
-
-      {/* Delivery & Payment */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10">
-            <div className="liquid-glass p-10 md:p-16 rounded-sm border border-brand-border">
-                <div className="flex flex-col lg:flex-row items-center gap-16">
-                    <div className="lg:w-1/2" data-aos="fade-right">
-                        <h2 className="text-3xl font-display font-light text-brand-light mb-8">Livraison & <br/><span className="font-bold text-brand-blue">Paiement</span></h2>
-                        <ul className="space-y-8">
-                            <li className="flex items-start">
-                                <div className="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
-                                    <i className="fa-solid fa-truck-fast text-sm"></i>
-                                </div>
-                                <div className="ml-6">
-                                    <h4 className="text-sm font-bold text-brand-light uppercase tracking-widest">Livraison Rapide</h4>
-                                    <p className="text-brand-muted text-xs mt-1 font-light">À Ouagadougou et dans les grandes villes du Burkina.</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start">
-                                <div className="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
-                                    <i className="fa-solid fa-hand-holding-dollar text-sm"></i>
-                                </div>
-                                <div className="ml-6">
-                                    <h4 className="text-sm font-bold text-brand-light uppercase tracking-widest">Paiement à la livraison</h4>
-                                    <p className="text-brand-muted text-xs mt-1 font-light">Payez en cash uniquement à la réception.</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start">
-                                <div className="w-10 h-10 border border-brand-border rounded-full flex items-center justify-center flex-shrink-0 text-brand-blue bg-brand-blue/5">
-                                    <i className="fa-solid fa-lock text-sm"></i>
-                                </div>
-                                <div className="ml-6">
-                                    <h4 className="text-sm font-bold text-brand-light uppercase tracking-widest">Commande Sécurisée</h4>
-                                    <p className="text-brand-muted text-xs mt-1 font-light">Simple, direct et sans aucun risque.</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="lg:w-1/2" data-aos="fade-left">
-                         <div className="relative">
-                            <div className="absolute inset-0 bg-brand-blue/20 blur-xl rounded-full"></div>
-                            <img src="https://images.unsplash.com/photo-1556906781-9a412961c28c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Delivery" className="relative rounded-sm shadow-2xl border border-brand-border opacity-90 grayscale hover:grayscale-0 transition-all duration-700" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </section>
-
-      {/* Social Proof */}
-      <section id="reviews" className="py-24 border-t border-brand-border">
-        <div className="container mx-auto px-6 text-center">
-            <h2 className="text-2xl font-display font-light text-brand-light mb-16 uppercase tracking-widest">Ils nous font <span className="font-bold text-brand-blue">confiance</span></h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="liquid-glass p-8 rounded-sm" data-aos="flip-left">
-                    <div className="flex text-brand-blue mb-6 justify-center gap-1 text-xs">
-                        <i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i>
-                    </div>
-                    <p className="text-brand-muted italic mb-6 font-light text-sm">"Bonne qualité, livraison rapide. Exactement comme sur la photo. Je valide fort !"</p>
-                    <div className="text-xs font-bold text-brand-light uppercase tracking-widest">- Ismaël S.</div>
-                </div>
-                
-                <div className="liquid-glass p-8 rounded-sm" data-aos="flip-left" data-aos-delay="100">
-                    <div className="flex text-brand-blue mb-6 justify-center gap-1 text-xs">
-                        <i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i>
-                    </div>
-                    <p className="text-brand-muted italic mb-6 font-light text-sm">"Très satisfait, je recommande. Le service client sur WhatsApp est top."</p>
-                    <div className="text-xs font-bold text-brand-light uppercase tracking-widest">- Fatou O.</div>
-                </div>
-
-                <div className="liquid-glass p-8 rounded-sm opacity-50 border-dashed border-brand-border" data-aos="flip-left" data-aos-delay="200">
-                    <div className="h-full flex flex-col justify-center items-center">
-                        <i className="fa-regular fa-comment-dots text-2xl text-brand-light mb-4"></i>
-                        <p className="text-brand-muted text-xs font-light">Rejoins la communauté DNAStore.</p>
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FeatureCard 
+                  icon="fa-truck-fast" 
+                  title="Livraison Rapide" 
+                  shortText="24-48h à Ouagadougou"
+                  fullText="Livraison express dans toute la capitale. Service étendu aux grandes villes du Burkina Faso avec suivi de commande."
+                  delay="400"
+                />
+                <FeatureCard 
+                  icon="fa-hand-holding-dollar" 
+                  title="Paiement à la livraison" 
+                  shortText="Cash à la réception"
+                  fullText="Payez uniquement à la réception de votre commande. Aucun paiement en ligne requis, sécurité maximale."
+                  delay="500"
+                />
+                <FeatureCard 
+                  icon="fa-lock" 
+                  title="100% Sécurisé" 
+                  shortText="Sans risque"
+                  fullText="Transactions sécurisées et confidentielles. Satisfaction garantie ou remboursement sous conditions."
+                  delay="600"
+                />
             </div>
         </div>
       </section>
+
+
 
       {/* Community */}
       <section className="py-24 relative overflow-hidden bg-brand-light/5">
@@ -306,21 +248,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-32 text-center relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10" data-aos="zoom-in">
-            <h2 className="text-4xl md:text-5xl font-display font-light text-brand-light mb-6">Trouver ta paire.</h2>
-            <p className="text-sm text-brand-muted mb-12 uppercase tracking-widest">Exprime ton style. Affirme ton ADN.</p>
-            <div className="flex flex-col md:flex-row justify-center gap-6">
-                <Link href="#collection" className="liquid-button bg-brand-light text-brand-base hover:bg-gray-200 px-10 py-4 font-bold text-xs uppercase tracking-widest rounded-sm border-none shadow-lg">
-                    Commander
-                </Link>
-                <a href="https://wa.me/22600000000" className="px-10 py-4 border border-brand-border text-brand-light font-bold text-xs uppercase tracking-widest hover:border-brand-light transition-colors rounded-sm">
-                    WhatsApp
-                </a>
-            </div>
-        </div>
-      </section>
+
 
       {/* Toast */}
       <div className={`fixed bottom-6 right-6 bg-brand-light text-brand-base px-8 py-4 shadow-2xl transform transition-transform duration-500 z-50 flex items-center gap-4 border border-gray-200 ${showToast ? 'translate-y-0' : 'translate-y-32'}`}>
@@ -349,6 +277,36 @@ export default function Home() {
         </div>
       )}
     </Layout>
+  )
+}
+
+function FeatureCard({ icon, iconBrand, title, shortText, fullText, delay }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  return (
+    <div className="group p-6 rounded-sm border border-brand-border hover:border-brand-blue/50 transition-all duration-300 flex flex-col items-center text-center liquid-glass relative" data-aos="fade-up" data-aos-delay={delay}>
+      <div className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-full mb-4 text-brand-blue group-hover:scale-110 transition-transform">
+        <i className={`${iconBrand ? 'fa-brands' : 'fa-solid'} ${icon} text-2xl md:text-3xl`}></i>
+      </div>
+      <h3 className="text-xs md:text-sm font-bold text-brand-light uppercase tracking-widest mb-2 md:mb-3">{title}</h3>
+      
+      {/* Desktop: hover to show full text */}
+      <div className="hidden md:block">
+        <p className="text-brand-muted text-sm leading-relaxed font-light group-hover:hidden">{shortText}</p>
+        <p className="text-brand-muted text-sm leading-relaxed font-light hidden group-hover:block">{fullText}</p>
+      </div>
+      
+      {/* Mobile: button to toggle */}
+      <div className="md:hidden">
+        <p className="text-brand-muted text-[10px] leading-relaxed font-light mb-3">{isExpanded ? fullText : shortText}</p>
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-6 h-6 rounded-full bg-brand-blue/20 text-brand-blue flex items-center justify-center text-xs hover:bg-brand-blue/30 transition-colors"
+        >
+          <i className={`fa-solid ${isExpanded ? 'fa-minus' : 'fa-plus'}`}></i>
+        </button>
+      </div>
+    </div>
   )
 }
 

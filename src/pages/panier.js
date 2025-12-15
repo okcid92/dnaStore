@@ -4,14 +4,26 @@ import CartItem from '@/components/CartItem'
 import { getCart, getCartTotal, clearCart } from '@/lib/cart'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 export default function Panier() {
   const router = useRouter()
   const [cart, setCart] = useState([])
-  const [phone, setPhone] = useState('')
-  const [isOuaga, setIsOuaga] = useState(true)
-  const [deliveryMode, setDeliveryMode] = useState('livraison')
-  const [address, setAddress] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [gettingLocation, setGettingLocation] = useState(false)
+  const [formData, setFormData] = useState({
+    customer_name: '',
+    phone: '',
+    city: 'Ouagadougou',
+    address: '',
+    latitude: null,
+    longitude: null,
+    delivery_mode: 'livraison'
+  })
+
+  const deliveryFee = formData.city === 'Ouagadougou' ? 500 : 0
+  const subtotal = getCartTotal()
+  const total = subtotal + deliveryFee
 
   useEffect(() => {
     setCart(getCart())
@@ -31,40 +43,123 @@ export default function Panier() {
     setCart(getCart())
   }
 
-  const handleOrder = () => {
-    if (!phone || phone.length < 8) {
-      alert('Veuillez entrer un numéro de téléphone valide')
-      return
+  const getLocation = () => {
+    setGettingLocation(true)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          const locationUrl = `https://www.google.com/maps?q=${latitude},${longitude}`
+          setFormData({ ...formData, address: locationUrl, latitude, longitude })
+          setGettingLocation(false)
+        },
+        (error) => {
+          alert('Impossible de récupérer votre position. Veuillez vérifier vos paramètres de localisation.')
+          setGettingLocation(false)
+        }
+      )
+    } else {
+      alert('La géolocalisation n\'est pas supportée par votre navigateur.')
+      setGettingLocation(false)
     }
+  }
 
-    if (deliveryMode === 'livraison' && !address) {
-      alert('Veuillez entrer votre adresse de livraison')
-      return
+  const handleOrder = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      // 1. Vérifier le stock disponible pour chaque produit
+      for (const item of cart) {
+        const { data: product } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.id)
+          .single()
+
+        if (!product || product.stock < item.quantity) {
+          alert(`Stock insuffisant pour ${item.name}. Disponible: ${product?.stock || 0}`)
+          setLoading(false)
+          return
+        }
+      }
+
+      // 2. Réserver le stock (diminuer temporairement)
+      for (const item of cart) {
+        const { error: stockError } = await supabase.rpc('decrease_stock', {
+          product_id: item.id,
+          quantity: item.quantity
+        })
+
+        if (stockError) {
+          // Si la fonction n'existe pas, utiliser une mise à jour directe
+          await supabase
+            .from('products')
+            .update({ stock: supabase.raw(`stock - ${item.quantity}`) })
+            .eq('id', item.id)
+        }
+      }
+
+      // 3. Créer la commande dans Supabase
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          customer_name: formData.customer_name,
+          customer_phone: formData.phone,
+          customer_address: formData.address,
+          items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            size: item.size,
+            price: item.price
+          })),
+          total_amount: total
+        }])
+        .select()
+        .single()
+
+      if (orderError) throw orderError
+
+      // 4. Générer le message WhatsApp
+      let message = `*COMMANDE #${order.id.slice(0, 8)}*\n\n`
+      
+      message += `*Client:* ${formData.customer_name}\n`
+      message += `*Tel:* ${formData.phone}\n`
+      message += `*Ville:* ${formData.city}\n`
+      
+      if (formData.delivery_mode === 'livraison') {
+        message += `*Adresse:* ${formData.address}\n`
+      }
+      
+      message += `\n*Articles:*\n`
+      cart.forEach((item, index) => {
+        message += `${index + 1}. ${item.name}`
+        if (item.size) message += ` (${item.size})`
+        message += ` x${item.quantity} - ${(item.price * item.quantity).toLocaleString()} FCFA\n`
+      })
+      
+      message += `\n*TOTAL: ${total.toLocaleString()} FCFA*`
+      if (formData.delivery_mode === 'livraison' && deliveryFee > 0) {
+        message += ` (dont ${deliveryFee} FCFA livraison)`
+      }
+
+      // 4. Vider le panier
+      clearCart()
+
+      // 5. Rediriger vers WhatsApp
+      const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
+
+      // 6. Rediriger vers page de confirmation
+      router.push(`/commande-confirmee?id=${order.id}`)
+
+    } catch (error) {
+      console.error('Erreur lors de la commande:', error)
+      alert('Une erreur est survenue. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
     }
-
-    let message = 'Bonjour, je veux commander :\n\n'
-    cart.forEach(item => {
-      message += `- ${item.name} (code: ${item.id})\n`
-      if (item.size) message += `  Taille: ${item.size}\n`
-      if (item.color) message += `  Couleur: ${item.color}\n`
-      message += `  Quantité: ${item.quantity}\n`
-      message += `  Prix: ${item.price * item.quantity} FCFA\n\n`
-    })
-
-    message += `Total : ${getCartTotal().toLocaleString()} FCFA\n\n`
-    message += `Téléphone : ${phone}\n`
-    message += `Localisation : ${isOuaga ? 'Ouagadougou' : 'Autre'}\n`
-    message += `Mode : ${deliveryMode === 'livraison' ? 'Livraison' : 'Retrait'}\n`
-    if (deliveryMode === 'livraison') {
-      message += `Adresse : ${address}\n`
-    }
-
-    const url = `https://wa.me/22600000000?text=${encodeURIComponent(message)}`
-    window.open(url, '_blank')
-    
-    clearCart()
-    setCart([])
-    // alert('Commande envoyée ! Nous vous contacterons bientôt.') // Optional: rely on WhatsApp opening
   }
 
   if (cart.length === 0) {
@@ -86,7 +181,7 @@ export default function Panier() {
 
   return (
     <Layout>
-      <div className="pt-32 pb-16 min-h-screen bg-brand-base">
+      <div className="pt-32 pb-16 min-h-screen">
         <div className="container mx-auto px-6">
           <h1 className="text-4xl font-display font-light text-brand-light mb-12 uppercase tracking-widest">Mon <span className="font-bold text-brand-blue">Panier</span></h1>
 
@@ -98,96 +193,171 @@ export default function Panier() {
               ))}
             </div>
 
-            {/* Order Summary */}
+            {/* Order Form */}
             <div className="lg:col-span-1">
-              <div className="liquid-glass p-8 rounded-sm sticky top-32">
-                <h2 className="text-xl font-bold text-brand-light mb-8 uppercase tracking-widest border-b border-brand-border pb-4">Résumé de la commande</h2>
+              <form onSubmit={handleOrder} className="liquid-glass p-8 rounded-sm sticky top-32">
+                <h2 className="text-xl font-bold text-brand-light mb-8 uppercase tracking-widest border-b border-brand-border pb-4">Finaliser la commande</h2>
 
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Téléphone <span className="text-brand-red">*</span></label>
+                    <label className="block text-xs font-bold text-white uppercase tracking-widest mb-3">Nom complet <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.customer_name}
+                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                      placeholder="Ex: Aicha Sow"
+                      className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-lg py-3.5 px-4 text-white text-sm focus:outline-none focus:border-brand-blue focus:bg-white/15 transition-all placeholder-white/40"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-white uppercase tracking-widest mb-3">Téléphone WhatsApp <span className="text-red-400">*</span></label>
                     <div className="relative">
-                      <i className="fa-solid fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-muted text-xs"></i>
+                      <i className="fa-brands fa-whatsapp absolute left-4 top-1/2 transform -translate-y-1/2 text-green-400 text-lg"></i>
                       <input
                         type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+226 XX XX XX XX"
-                        className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 pl-10 pr-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50"
+                        className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-lg py-3.5 pl-12 pr-4 text-white text-sm focus:outline-none focus:border-brand-blue focus:bg-white/15 transition-all placeholder-white/40"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-white uppercase tracking-widest mb-3">Ville <span className="text-red-400">*</span></label>
+                    <div className="relative">
+                      <i className="fa-solid fa-location-dot absolute left-4 top-1/2 transform -translate-y-1/2 text-brand-blue text-sm"></i>
+                      <select
                         required
-                      />
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-lg py-3.5 pl-12 pr-4 text-white text-sm focus:outline-none focus:border-brand-blue focus:bg-white/15 transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="Ouagadougou" className="bg-brand-base text-white">Ouagadougou (Livraison 500 FCFA)</option>
+                        <option value="Bobo-Dioulasso" className="bg-brand-base text-white">Bobo-Dioulasso (À vos frais)</option>
+                        <option value="Autre" className="bg-brand-base text-white">Autre ville (À vos frais)</option>
+                      </select>
+                      <i className="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 text-xs pointer-events-none"></i>
                     </div>
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`w-5 h-5 border border-brand-border rounded-sm flex items-center justify-center transition-colors ${isOuaga ? 'bg-brand-blue border-brand-blue' : 'bg-transparent'}`}>
-                        {isOuaga && <i className="fa-solid fa-check text-white text-xs"></i>}
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={isOuaga}
-                        onChange={(e) => setIsOuaga(e.target.checked)}
-                        className="hidden"
-                      />
-                      <span className="text-sm text-brand-muted group-hover:text-brand-light transition-colors font-light">Je suis à Ouagadougou</span>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Mode de réception <span className="text-brand-red">*</span></label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <label className={`cursor-pointer border rounded-sm p-3 text-center transition-all ${deliveryMode === 'livraison' ? 'border-brand-blue bg-brand-blue/10 text-brand-light' : 'border-brand-border text-brand-muted hover:border-brand-muted'}`}>
-                        <input
-                          type="radio"
-                          value="livraison"
-                          checked={deliveryMode === 'livraison'}
-                          onChange={(e) => setDeliveryMode(e.target.value)}
-                          className="hidden"
-                        />
-                        <i className="fa-solid fa-truck-fast mb-2 block text-lg"></i>
-                        <span className="text-xs font-bold uppercase tracking-wider">Livraison</span>
-                      </label>
-                      <label className={`cursor-pointer border rounded-sm p-3 text-center transition-all ${deliveryMode === 'retrait' ? 'border-brand-blue bg-brand-blue/10 text-brand-light' : 'border-brand-border text-brand-muted hover:border-brand-muted'}`}>
-                        <input
-                          type="radio"
-                          value="retrait"
-                          checked={deliveryMode === 'retrait'}
-                          onChange={(e) => setDeliveryMode(e.target.value)}
-                          className="hidden"
-                        />
-                        <i className="fa-solid fa-store mb-2 block text-lg"></i>
-                        <span className="text-xs font-bold uppercase tracking-wider">Retrait</span>
-                      </label>
+                    <label className="block text-xs font-bold text-white uppercase tracking-widest mb-3">Mode de réception <span className="text-red-400">*</span></label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, delivery_mode: 'livraison' })}
+                        className={`border-2 rounded-lg p-4 text-center transition-all ${formData.delivery_mode === 'livraison' ? 'border-brand-blue bg-brand-blue/20 text-white shadow-lg shadow-brand-blue/20' : 'border-white/20 text-white/60 hover:border-white/40 hover:text-white'}`}
+                      >
+                        <i className="fa-solid fa-truck-fast mb-2 block text-2xl"></i>
+                        <span className="text-xs font-bold uppercase tracking-wider block">Livraison</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, delivery_mode: 'retrait' })}
+                        className={`border-2 rounded-lg p-4 text-center transition-all ${formData.delivery_mode === 'retrait' ? 'border-brand-blue bg-brand-blue/20 text-white shadow-lg shadow-brand-blue/20' : 'border-white/20 text-white/60 hover:border-white/40 hover:text-white'}`}
+                      >
+                        <i className="fa-solid fa-store mb-2 block text-2xl"></i>
+                        <span className="text-xs font-bold uppercase tracking-wider block">Retrait</span>
+                      </button>
                     </div>
                   </div>
 
-                  {deliveryMode === 'livraison' && (
+                  {formData.delivery_mode === 'livraison' && (
                     <div className="animate-fade-in">
-                      <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Adresse de livraison <span className="text-brand-red">*</span></label>
-                      <textarea
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Quartier, point de repère..."
-                        className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50 min-h-[80px]"
-                        required
-                      />
+                      <label className="block text-xs font-bold text-white uppercase tracking-widest mb-3">Adresse de livraison <span className="text-red-400">*</span></label>
+                      
+                      {!formData.address ? (
+                        <button
+                          type="button"
+                          onClick={getLocation}
+                          disabled={gettingLocation}
+                          className="w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 hover:border-brand-blue hover:bg-white/15 text-white font-bold py-4 px-6 rounded-lg transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                          {gettingLocation ? (
+                            <>
+                              <i className="fa-solid fa-spinner fa-spin text-lg"></i>
+                              <span className="text-sm uppercase tracking-widest">Récupération...</span>
+                            </>
+                          ) : (
+                            <>
+                              <i className="fa-solid fa-location-crosshairs text-lg"></i>
+                              <span className="text-sm uppercase tracking-widest">Partager ma position</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <i className="fa-solid fa-map-marker-alt text-green-400 text-xl mt-1"></i>
+                              <div className="flex-1">
+                                <p className="text-sm text-white font-bold mb-2">Position enregistrée</p>
+                                <p className="text-xs text-white/60 mb-3">Lat: {formData.latitude?.toFixed(6)}, Long: {formData.longitude?.toFixed(6)}</p>
+                                <a 
+                                  href={formData.address} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 text-xs text-brand-blue hover:text-brand-blue/80 font-bold uppercase tracking-widest"
+                                >
+                                  <i className="fa-solid fa-external-link-alt"></i>
+                                  Voir sur Google Maps
+                                </a>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, address: '', latitude: null, longitude: null })}
+                                className="text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                <i className="fa-solid fa-times text-lg"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  <div className="border-t border-brand-border pt-6 mt-6">
-                    <div className="flex justify-between items-end mb-2">
-                      <span className="text-sm text-brand-muted uppercase tracking-widest">Total</span>
-                      <span className="text-3xl font-light text-brand-light">{getCartTotal().toLocaleString()} <span className="text-sm font-bold text-brand-blue">FCFA</span></span>
+                  <div className="border-t-2 border-white/10 pt-5 mt-5 space-y-3">
+                    <div className="flex justify-between items-center text-white/80">
+                      <span className="text-xs uppercase tracking-widest">Sous-total</span>
+                      <span className="text-lg font-bold">{subtotal.toLocaleString()} FCFA</span>
                     </div>
-                    <p className="text-[10px] text-brand-muted font-light text-right mb-6">Taxes et frais de livraison inclus (si applicable)</p>
+                    {formData.delivery_mode === 'livraison' && (
+                      <div className="flex justify-between items-center text-white/80">
+                        <span className="text-xs uppercase tracking-widest">Livraison</span>
+                        <span className="text-lg font-bold">{deliveryFee > 0 ? `${deliveryFee} FCFA` : 'À vos frais'}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-3 border-t border-white/10">
+                      <span className="text-sm text-white uppercase tracking-widest font-bold">Total</span>
+                      <span className="text-3xl font-bold text-white">{total.toLocaleString()} <span className="text-sm text-brand-blue">FCFA</span></span>
+                    </div>
                   </div>
 
-                  <button onClick={handleOrder} className="w-full py-4 bg-brand-light text-brand-base font-bold uppercase tracking-widest hover:bg-white transition-all shadow-lg flex items-center justify-center gap-3 rounded-sm">
-                    <i className="fa-brands fa-whatsapp text-xl"></i> Commander
+                  <button 
+                    type="submit"
+                    disabled={loading || (formData.delivery_mode === 'livraison' && !formData.address)}
+                    className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <>
+                        <i className="fa-solid fa-spinner fa-spin text-xl"></i>
+                        <span>Traitement...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>Confirmer sur WhatsApp</span>
+                      </>
+                    )}
                   </button>
+                  <p className="text-[10px] text-white/60 text-center">Vous serez redirigé vers WhatsApp pour finaliser</p>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+  import { useState } from 'react'
 import { useRouter } from 'next/router'
+import Background from '@/components/Background'
 import { supabase } from '@/lib/supabase'
-import Image from 'next/image'
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -26,55 +26,48 @@ export default function AdminLogin() {
       return
     }
 
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    if (!userData || userData.role !== 'admin') {
-      await supabase.auth.signOut()
-      setError('Accès non autorisé')
-      setLoading(false)
-      return
-    }
-
     router.push('/admin/dashboard')
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <div className="flex justify-center mb-6">
-          <Image src="/Geminlogo (1).png" alt="DNA Store" width={80} height={80} />
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      <Background />
+      
+      <div className="liquid-glass p-10 rounded-sm max-w-md w-full relative z-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-display font-bold text-brand-light tracking-widest mb-2">
+            DNA<span className="text-brand-blue">ADMIN</span>
+          </h1>
+          <p className="text-xs text-brand-muted uppercase tracking-widest">Accès réservé</p>
         </div>
-        <h1 className="text-3xl font-bold text-center mb-8">Admin Login</h1>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block font-bold mb-2">Email</label>
+            <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-blue outline-none"
+              className="w-full liquid-glass border-2 border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-all backdrop-blur-xl placeholder-brand-muted/70"
+              placeholder="admin@dnastore.com"
               required
             />
           </div>
 
           <div>
-            <label className="block font-bold mb-2">Mot de passe</label>
+            <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Mot de passe</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-primary-blue outline-none"
+              className="w-full liquid-glass border-2 border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-all backdrop-blur-xl placeholder-brand-muted/70"
+              placeholder="••••••••"
               required
             />
           </div>
 
           {error && (
-            <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-brand-red/10 border border-brand-red/20 text-brand-red px-4 py-3 rounded-sm text-xs font-bold uppercase tracking-wide text-center">
               {error}
             </div>
           )}
@@ -82,7 +75,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full disabled:opacity-50"
+            className="w-full py-4 bg-brand-blue text-white font-bold uppercase tracking-widest hover:bg-brand-blue/80 transition-all shadow-lg rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>

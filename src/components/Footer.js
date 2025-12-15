@@ -2,38 +2,88 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="bg-black py-16 border-t border-brand-light/10 text-xs">
-        <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-                <div>
-                    <Link href="/" className="text-lg font-bold tracking-widest text-brand-light uppercase mb-6 block">
-                        DNA<span className="text-brand-blue">Store</span>
-                    </Link>
-                    <p className="text-gray-500 max-w-xs font-light">
-                        Redéfinir le standard du streetwear au Burkina Faso.
-                    </p>
-                </div>
-                
-                <div className="flex gap-12 text-gray-500 font-light uppercase tracking-widest">
-                    <div className="flex flex-col gap-4">
-                        <Link href="/#collection" className="hover:text-brand-light transition-colors">Collection</Link>
-                        <Link href="/a-propos" className="hover:text-brand-light transition-colors">À propos</Link>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <Link href="#" className="hover:text-brand-light transition-colors">Livraison</Link>
-                        <Link href="/contact" className="hover:text-brand-light transition-colors">Contact</Link>
-                    </div>
-                </div>
+    <footer className="relative mt-24 border-t border-brand-border">
+      <div className="liquid-glass backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div>
+              <Link href="/" className="flex items-center gap-2 mb-6 group">
+                <i className="fa-solid fa-dna text-brand-blue text-3xl transition-transform group-hover:scale-110"></i>
+                <span className="text-xl font-display font-bold tracking-widest uppercase text-brand-light">
+                  DNA<span className="text-brand-blue font-light">Store</span>
+                </span>
+              </Link>
+              <p className="text-brand-muted text-sm leading-relaxed mb-6">
+                Redéfinir le standard du streetwear au Burkina Faso avec style et authenticité.
+              </p>
+              <div className="flex gap-3">
+                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                  <i className="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                  <i className="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#" className="w-10 h-10 liquid-glass rounded-sm flex items-center justify-center text-brand-muted hover:text-brand-blue hover:border-brand-blue border border-brand-border transition-all">
+                  <i className="fa-brands fa-whatsapp"></i>
+                </a>
+              </div>
+            </div>
 
-                <div className="text-right text-gray-500 font-light">
-                    <p className="mb-2">Ouagadougou, BF</p>
-                    <p>+226 00 00 00 00</p>
-                </div>
+            {/* Navigation */}
+            <div>
+              <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-6">Navigation</h3>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/#collection" className="text-brand-muted hover:text-brand-light transition-colors">Collection</Link></li>
+                <li><Link href="/#why-us" className="text-brand-muted hover:text-brand-light transition-colors">Philosophie</Link></li>
+                <li><Link href="/#reviews" className="text-brand-muted hover:text-brand-light transition-colors">Avis Clients</Link></li>
+                <li><Link href="/#faq" className="text-brand-muted hover:text-brand-light transition-colors">FAQ</Link></li>
+              </ul>
             </div>
-            <div className="mt-16 pt-8 border-t border-brand-light/5 text-center text-gray-600 font-light uppercase tracking-widest text-[10px]">
-                &copy; {new Date().getFullYear()} DNAStore. Tous droits réservés.
+
+            {/* Informations */}
+            <div>
+              <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-6">Informations</h3>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/a-propos" className="text-brand-muted hover:text-brand-light transition-colors">À propos</Link></li>
+                <li><Link href="/contact" className="text-brand-muted hover:text-brand-light transition-colors">Contact</Link></li>
+                <li><Link href="/panier" className="text-brand-muted hover:text-brand-light transition-colors">Mon Panier</Link></li>
+                <li><Link href="/produits" className="text-brand-muted hover:text-brand-light transition-colors">Nos Produits</Link></li>
+              </ul>
             </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-xs font-bold text-brand-light uppercase tracking-widest mb-6">Contact</h3>
+              <ul className="space-y-4 text-sm text-brand-muted">
+                <li className="flex items-start gap-3">
+                  <i className="fa-solid fa-location-dot text-brand-blue mt-1"></i>
+                  <span>Ouagadougou, Burkina Faso</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <i className="fa-solid fa-phone text-brand-blue"></i>
+                  <a href="tel:+22600000000" className="hover:text-brand-light transition-colors">+226 00 00 00 00</a>
+                </li>
+                <li className="flex items-center gap-3">
+                  <i className="fa-solid fa-envelope text-brand-blue"></i>
+                  <a href="mailto:contact@dnastore.bf" className="hover:text-brand-light transition-colors">contact@dnastore.bf</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-brand-muted uppercase tracking-widest">
+              &copy; {new Date().getFullYear()} DNAStore. Tous droits réservés.
+            </p>
+            <div className="flex gap-6 text-xs text-brand-muted uppercase tracking-widest">
+              <Link href="/conditions" className="hover:text-brand-light transition-colors">Conditions d'utilisation</Link>
+              <Link href="/confidentialite" className="hover:text-brand-light transition-colors">Confidentialité</Link>
+            </div>
+          </div>
         </div>
+      </div>
     </footer>
   )
 }

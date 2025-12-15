@@ -1,29 +1,32 @@
 # DNAStore - E-commerce Next.js
 
-Bienvenue sur le dépôt de **DNAStore**, une plateforme e-commerce moderne spécialisée dans la vente de sneakers et vêtements streetwear au Burkina Faso.
-
-![DNAStore Preview](https://via.placeholder.com/800x400?text=DNAStore+Preview)
+Bienvenue sur le dépôt de **DNAStore**, une plateforme e-commerce moderne avec design iOS 26 Liquid Glass.
 
 ## 🚀 Fonctionnalités
 
-*   **Design Premium & Moderne** : Interface utilisateur soignée avec effets "Liquid Glass", animations fluides (AOS) et mode sombre/clair.
-*   **Catalogue Interactif** : Présentation des produits avec galerie d'images, badges (Nouveau, Stock limité) et notes.
-*   **Panier Dynamique** : Gestion du panier en temps réel (ajout, suppression, modification des quantités) avec persistance locale.
-*   **Commande via WhatsApp** : Processus de commande simplifié redirigeant vers WhatsApp avec un message pré-rempli contenant les détails de la commande.
-*   **Pages Détaillées** :
-    *   **Accueil** : Hero section immersive, collections, témoignages, FAQ.
-    *   **Produit** : Page détail avec zoom image, sélection de taille et infos logistiques.
-    *   **Panier** : Récapitulatif clair et formulaire de commande.
-    *   **Contact** : Informations de contact et formulaire rapide.
-*   **Responsive Design** : Optimisé pour tous les écrans (Mobile, Tablette, Desktop).
+### Frontend Public
+*   **Design iOS 26 Liquid Glass** : Effets vitreux, backdrop-blur, dégradés, animations fluides
+*   **Catalogue Interactif** : Produits avec images, filtres, recherche
+*   **Panier Dynamique** : Gestion en temps réel avec localStorage
+*   **Commande WhatsApp** : Processus simplifié avec message pré-rempli
+*   **Pages** : Accueil, Produits, Panier, Contact, À propos
+*   **Responsive** : Mobile, Tablette, Desktop
+
+### Dashboard Admin
+*   **Authentification** : Connexion sécurisée avec Supabase Auth
+*   **Dashboard** : Statistiques en temps réel (produits, commandes, en attente)
+*   **Gestion Produits** : CRUD complet avec upload d'images (Supabase Storage)
+*   **Gestion Commandes** : Liste, filtres, mise à jour des statuts
+*   **Composants Réutilisables** : StatusBadge, PageHeader, EmptyState, ImageUpload
 
 ## 🛠 Technologies
 
-*   **Framework** : [Next.js](https://nextjs.org/) (React)
-*   **Styling** : [Tailwind CSS](https://tailwindcss.com/)
+*   **Framework** : [Next.js](https://nextjs.org/) 14 (Page Router)
+*   **Styling** : [Tailwind CSS](https://tailwindcss.com/) (iOS 26 Liquid Glass)
+*   **Base de données** : [Supabase](https://supabase.com/) (PostgreSQL)
+*   **Storage** : Supabase Storage (images produits)
+*   **Auth** : Supabase Auth (admin)
 *   **Icônes** : [FontAwesome](https://fontawesome.com/)
-*   **Animations** : [AOS (Animate On Scroll)](https://michalsnik.github.io/aos/)
-*   **Base de données (Future)** : Supabase (Schéma SQL prêt)
 
 ## 📦 Installation
 
@@ -39,44 +42,113 @@ Bienvenue sur le dépôt de **DNAStore**, une plateforme e-commerce moderne spé
     ```
 
 3.  **Configurer l'environnement** :
-    Créez un fichier `.env.local` à la racine et ajoutez votre numéro WhatsApp :
+    Créez un fichier `.env.local` à la racine :
     ```env
-    NEXT_PUBLIC_WHATSAPP_NUMBER=22600000000
+    NEXT_PUBLIC_SUPABASE_URL=https://votre-projet.supabase.co
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=votre_anon_key
+    SUPABASE_SERVICE_ROLE_KEY=votre_service_role_key
+    NEXT_PUBLIC_WHATSAPP_NUMBER=+226XXXXXXXX
     ```
 
-4.  **Lancer le serveur de développement** :
+4.  **Configurer Supabase** :
+    Voir [SETUP.md](./SETUP.md) pour créer les tables et configurer le storage
+
+5.  **Lancer le serveur de développement** :
     ```bash
     npm run dev
     ```
 
-5.  **Ouvrir le navigateur** :
-    Rendez-vous sur [http://localhost:3000](http://localhost:3000).
+6.  **Ouvrir le navigateur** :
+    *   Frontend : [http://localhost:3000](http://localhost:3000)
+    *   Admin : [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
 ## 📂 Structure du Projet
 
 ```
-dnastore/
-├── public/             # Images et fichiers statiques
+DNAstore/
+├── public/
+│   ├── Geminlogo (1).png
+│   ├── robots.txt
+│   └── sitemap.xml
 ├── src/
-│   ├── components/     # Composants réutilisables (Header, Footer, CartItem...)
-│   ├── lib/            # Logique métier (cart.js, supabase.js...)
-│   ├── pages/          # Routes de l'application
-│   │   ├── index.js    # Page d'accueil
-│   │   ├── panier.js   # Page panier
-│   │   ├── contact.js  # Page contact
-│   │   └── produits/   # Pages produits dynamiques
-│   └── styles/         # Styles globaux (Tailwind, CSS variables)
-├── tailwind.config.js  # Configuration Tailwind
-└── package.json        # Dépendances
+│   ├── components/
+│   │   ├── admin/
+│   │   │   ├── AdminLayout.js
+│   │   │   ├── EmptyState.js
+│   │   │   ├── ImageUpload.js
+│   │   │   ├── PageHeader.js
+│   │   │   └── StatusBadge.js
+│   │   ├── CartItem.js
+│   │   ├── Footer.js
+│   │   ├── Header.js
+│   │   ├── Layout.js
+│   │   ├── Loading.js
+│   │   ├── ProductCard.js
+│   │   └── Toast.js
+│   ├── lib/
+│   │   ├── cart.js
+│   │   ├── storage.js
+│   │   ├── supabase.js
+│   │   └── validation.js
+│   ├── pages/
+│   │   ├── admin/
+│   │   │   ├── commandes/
+│   │   │   │   └── index.js
+│   │   │   ├── produits/
+│   │   │   │   ├── modifier/
+│   │   │   │   │   └── [id].js
+│   │   │   │   ├── ajouter.js
+│   │   │   │   └── index.js
+│   │   │   ├── dashboard.js
+│   │   │   └── login.js
+│   │   ├── produit/
+│   │   │   └── [id].js
+│   │   ├── index.js
+│   │   ├── produits.js
+│   │   ├── panier.js
+│   │   ├── contact.js
+│   │   ├── a-propos.js
+│   │   ├── 404.js
+│   │   ├── _app.js
+│   │   ├── _document.js
+│   │   └── _error.js
+│   └── styles/
+│       └── globals.css
+├── .env.local
+├── .env.example
+├── .gitignore
+├── jsconfig.json
+├── middleware.js
+├── next.config.js
+├── package.json
+├── postcss.config.js
+└── tailwind.config.js
 ```
 
-## 🔮 Roadmap
+## 📚 Documentation
 
-Voir le fichier [ROADMAP.md](./ROADMAP.md) pour les futures évolutions.
+*   [SETUP.md](./SETUP.md) - Configuration Supabase (tables, RLS, storage)
+*   [ROADMAP.md](./ROADMAP.md) - Plan de développement
+*   [STYLE_GUIDE.md](./STYLE_GUIDE.md) - Guide du style iOS 26 Liquid Glass
+*   [REFACTORING.md](./REFACTORING.md) - Optimisations effectuées
+*   [COHERENCE.md](./COHERENCE.md) - Corrections de cohérence
+*   [SUPABASE_STORAGE_GUIDE.md](./SUPABASE_STORAGE_GUIDE.md) - Configuration du storage
 
-## 🤝 Contribution
+## 🎯 Pages Admin
 
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
+### Accès
+*   URL : `/admin/login`
+*   Email : Configuré dans Supabase Auth
+*   Rôle : `admin` dans la table `users`
+
+### Fonctionnalités
+*   **Dashboard** : Statistiques en temps réel
+*   **Produits** : CRUD complet avec upload d'images
+*   **Commandes** : Liste et gestion des statuts
+
+## 🚀 Déploiement
+
+Voir [DEPLOY.md](./DEPLOY.md) pour déployer sur Vercel.
 
 ## 📄 Licence
 

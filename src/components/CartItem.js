@@ -14,11 +14,11 @@ export default function CartItem({ item, onUpdate }) {
   return (
     <div className="liquid-glass p-4 rounded-sm flex gap-6 items-center group">
       <div className="relative w-24 h-24 bg-black/20 rounded-sm overflow-hidden flex-shrink-0">
-        {item.image ? (
-          <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        {(item.image_url || item.image) ? (
+          <img src={item.image_url || item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
           <div className="flex items-center justify-center h-full text-brand-muted text-xs">
-            No Image
+            <i className="fa-solid fa-image text-2xl opacity-30"></i>
           </div>
         )}
       </div>

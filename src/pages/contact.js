@@ -14,12 +14,8 @@ export default function Contact() {
 
   return (
     <Layout>
-      <div className="pt-32 pb-16 min-h-screen bg-brand-base relative overflow-hidden">
-        {/* Ambient Background */}
-        <div className="ambient-light">
-           <div className="blob top-1/4 right-0 w-96 h-96 animate-blob opacity-20"></div>
-           <div className="blob bottom-0 left-0 w-[500px] h-[500px] animate-blob animation-delay-2000 opacity-20" style={{ background: '#152642' }}></div>
-        </div>
+      <div className="pt-32 pb-16 min-h-screen relative overflow-hidden">
+
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16" data-aos="fade-up">
@@ -80,54 +76,66 @@ export default function Contact() {
               <h2 className="text-xl font-bold text-brand-light mb-8 uppercase tracking-widest border-b border-brand-border pb-4">Envoyez-nous un message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Nom complet</label>
-                  <input
-                    type="text"
-                    placeholder="Votre nom"
-                    value={form.name}
-                    onChange={(e) => setForm({...form, name: e.target.value})}
-                    className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50"
-                    required
-                  />
+                  <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-3">Nom complet <span className="text-brand-blue">*</span></label>
+                  <div className="relative">
+                    <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
+                    <input
+                      type="text"
+                      placeholder="Ex: Jean Dupont"
+                      value={form.name}
+                      onChange={(e) => setForm({...form, name: e.target.value})}
+                      className="w-full bg-white/5 backdrop-blur-xl border-2 border-brand-border rounded-sm py-3.5 pl-12 pr-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue focus:bg-white/10 transition-all placeholder-brand-muted/50"
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Email</label>
-                      <input
-                        type="email"
-                        placeholder="votre@email.com"
-                        value={form.email}
-                        onChange={(e) => setForm({...form, email: e.target.value})}
-                        className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50"
-                        required
-                      />
+                      <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-3">Email <span className="text-brand-blue">*</span></label>
+                      <div className="relative">
+                        <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
+                        <input
+                          type="email"
+                          placeholder="votre@email.com"
+                          value={form.email}
+                          onChange={(e) => setForm({...form, email: e.target.value})}
+                          className="w-full bg-white/5 backdrop-blur-xl border-2 border-brand-border rounded-sm py-3.5 pl-12 pr-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue focus:bg-white/10 transition-all placeholder-brand-muted/50"
+                          required
+                        />
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Téléphone</label>
-                      <input
-                        type="tel"
-                        placeholder="+226..."
-                        value={form.phone}
-                        onChange={(e) => setForm({...form, phone: e.target.value})}
-                        className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50"
-                        required
-                      />
+                      <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-3">Téléphone <span className="text-brand-blue">*</span></label>
+                      <div className="relative">
+                        <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted"></i>
+                        <input
+                          type="tel"
+                          placeholder="+226 XX XX XX XX"
+                          value={form.phone}
+                          onChange={(e) => setForm({...form, phone: e.target.value})}
+                          className="w-full bg-white/5 backdrop-blur-xl border-2 border-brand-border rounded-sm py-3.5 pl-12 pr-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue focus:bg-white/10 transition-all placeholder-brand-muted/50"
+                          required
+                        />
+                      </div>
                     </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-2">Message</label>
-                  <textarea
-                    placeholder="Comment pouvons-nous vous aider ?"
-                    value={form.message}
-                    onChange={(e) => setForm({...form, message: e.target.value})}
-                    className="w-full bg-brand-base/50 border border-brand-border rounded-sm py-3 px-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue transition-colors placeholder-brand-muted/50 min-h-[150px]"
-                    required
-                  />
+                  <label className="block text-xs font-bold text-brand-light uppercase tracking-widest mb-3">Message <span className="text-brand-blue">*</span></label>
+                  <div className="relative">
+                    <i className="fa-solid fa-message absolute left-4 top-4 text-brand-muted"></i>
+                    <textarea
+                      placeholder="Comment pouvons-nous vous aider ?"
+                      value={form.message}
+                      onChange={(e) => setForm({...form, message: e.target.value})}
+                      className="w-full bg-white/5 backdrop-blur-xl border-2 border-brand-border rounded-sm py-3.5 pl-12 pr-4 text-brand-light text-sm focus:outline-none focus:border-brand-blue focus:bg-white/10 transition-all placeholder-brand-muted/50 min-h-[150px] resize-none"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <button type="submit" className="w-full py-4 bg-brand-light text-brand-base font-bold uppercase tracking-widest hover:bg-white transition-all shadow-lg flex items-center justify-center gap-3 rounded-sm">
+                <button type="submit" className="liquid-button w-full py-4 rounded-sm font-bold uppercase tracking-widest text-white flex items-center justify-center gap-3 text-sm shadow-lg">
                   <i className="fa-brands fa-whatsapp text-xl"></i> Envoyer via WhatsApp
                 </button>
               </form>

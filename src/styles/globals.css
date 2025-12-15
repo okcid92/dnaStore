@@ -21,6 +21,8 @@
     
     --blob-color: #1F3A5F;
     --blob-opacity: 0.15;
+    
+    --grid-color: rgba(243, 243, 242, 0.15);
   }
 
   body.light-mode {
@@ -37,6 +39,8 @@
     
     --blob-color: #1F3A5F;
     --blob-opacity: 0.08;
+    
+    --grid-color: rgba(28, 28, 30, 0.1);
   }
 
   body {
@@ -143,5 +147,31 @@
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+  }
+
+  /* Grid Animation */
+  @keyframes grid-scroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+  }
+
+  .bg-grid-pattern {
+    background-size: 50px 50px;
+    background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                      linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    animation: grid-scroll 20s linear infinite;
+  }
+
+  /* Select Options Styling */
+  select option {
+    background-color: #1C1C1E;
+    color: #F3F3F2;
+    padding: 8px;
+  }
+
+  select option:checked,
+  select option:hover {
+    background-color: #1F3A5F;
+    color: #ffffff;
   }
 }
